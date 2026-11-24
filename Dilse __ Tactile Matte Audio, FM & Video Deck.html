@@ -1,0 +1,2597 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Dilse // Tactile Matte Audio, FM & Video Deck</title>
+    <!-- Tailwind CSS -->
+    <script src="https://cdn.tailwindcss.com"></script>
+    <!-- Google Fonts: Inter & JetBrains Mono -->
+    <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700&family=JetBrains+Mono:wght@400;500;600&display=swap" rel="stylesheet">
+    <!-- Phosphor Icons -->
+    <script src="https://unpkg.com/@phosphor-icons/web"></script>
+    <script>
+        tailwind.config = {
+            theme: {
+                extend: {
+                    fontFamily: {
+                        sans: ['"Inter"', 'sans-serif'],
+                        mono: ['"JetBrains Mono"', 'monospace'],
+                    },
+                    colors: {
+                        chassis: '#242528',
+                        chassisDark: '#1C1D20',
+                        accent: '#E5E7EB',
+                    }
+                }
+            }
+        }
+    </script>
+    <style>
+        /* Sleek Custom Scrollbars */
+        ::-webkit-scrollbar { width: 3px; height: 3px; }
+        ::-webkit-scrollbar-track { background: transparent; }
+        ::-webkit-scrollbar-thumb { background: rgba(255, 255, 255, 0.14); border-radius: 999px; }
+        ::-webkit-scrollbar-thumb:hover { background: rgba(255, 255, 255, 0.35); }
+        .no-scrollbar::-webkit-scrollbar { display: none; }
+        .no-scrollbar { -ms-overflow-style: none; scrollbar-width: none; }
+
+        /* Matte Neumorphic / Tactile Hardware Surfaces */
+        @property --rgb-angle {
+            syntax: '<angle>';
+            initial-value: 0deg;
+            inherits: false;
+        }
+
+        @keyframes rgbBorderSpin {
+            0% { --rgb-angle: 0deg; }
+            100% { --rgb-angle: 360deg; }
+        }
+
+        .matte-device {
+            position: relative;
+            background: linear-gradient(165deg, #2D2E32 0%, #1F2023 55%, #18191B 100%);
+            box-shadow: inset 0 1px 1px rgba(255, 255, 255, 0.14);
+        }
+
+        .recessed-screen {
+            position: relative;
+            background:
+                linear-gradient(145deg, #16171A, #111214) padding-box,
+                conic-gradient(
+                    from var(--rgb-angle),
+                    #ff0055,
+                    #ff7b00,
+                    #ffe600,
+                    #00ff88,
+                    #00d4ff,
+                    #7b2cbf,
+                    #ff0055
+                ) border-box;
+            border: 2px solid transparent;
+            animation: rgbBorderSpin 6s linear infinite;
+            box-shadow:
+                inset 0 8px 22px rgba(0, 0, 0, 0.85),
+                inset 0 1px 3px rgba(0, 0, 0, 0.9),
+                0 1px 0 rgba(255, 255, 255, 0.07);
+        }
+
+        .recessed-screen::before {
+            content: '';
+            position: absolute;
+            inset: -3px;
+            border-radius: inherit;
+            background: conic-gradient(
+                from var(--rgb-angle),
+                #ff0055,
+                #ff7b00,
+                #ffe600,
+                #00ff88,
+                #00d4ff,
+                #7b2cbf,
+                #ff0055
+            );
+            filter: blur(12px);
+            opacity: 0.45;
+            z-index: -1;
+            pointer-events: none;
+            animation: rgbBorderSpin 6s linear infinite;
+            transition: opacity 0.35s ease, filter 0.35s ease;
+        }
+
+        .rgb-art-playing .recessed-screen::before {
+            opacity: 0.78;
+            filter: blur(16px);
+        }
+
+        .click-wheel-outer {
+            background: linear-gradient(145deg, #1E1F22, #292A2E);
+            box-shadow:
+                10px 14px 28px rgba(0, 0, 0, 0.68),
+                -4px -4px 12px rgba(255, 255, 255, 0.04),
+                inset 0 1px 1px rgba(255, 255, 255, 0.09);
+            border: 1px solid rgba(0, 0, 0, 0.45);
+        }
+
+        .click-wheel-center {
+            background: linear-gradient(145deg, #28292D, #1B1C1E);
+            box-shadow:
+                inset 0 3px 8px rgba(0, 0, 0, 0.75),
+                0 1px 1px rgba(255, 255, 255, 0.08);
+            border: 1px solid rgba(0, 0, 0, 0.5);
+        }
+
+        .tactile-round-btn {
+            background: linear-gradient(145deg, #2B2C30, #1D1E21);
+            box-shadow:
+                6px 8px 16px rgba(0, 0, 0, 0.6),
+                -2px -2px 8px rgba(255, 255, 255, 0.04),
+                inset 0 1px 1px rgba(255, 255, 255, 0.1);
+            border: 1px solid rgba(255, 255, 255, 0.05);
+        }
+        .tactile-round-btn:active {
+            box-shadow: inset 0 3px 8px rgba(0, 0, 0, 0.8);
+            transform: scale(0.95);
+        }
+        .tactile-active {
+            color: #ffffff !important;
+            box-shadow:
+                inset 0 2px 6px rgba(0, 0, 0, 0.78),
+                0 0 12px rgba(255, 255, 255, 0.12);
+        }
+
+        .active-track-slot {
+            background: linear-gradient(180deg, #1A1B1E 0%, #222327 100%);
+            box-shadow:
+                inset 0 2px 6px rgba(0, 0, 0, 0.7),
+                0 1px 0 rgba(255, 255, 255, 0.07);
+            border: 1px solid rgba(255, 255, 255, 0.06);
+        }
+
+        .mini-dock {
+            background: linear-gradient(180deg, #1B1C1F 0%, #151618 100%);
+            box-shadow:
+                0 10px 24px rgba(0, 0, 0, 0.65),
+                inset 0 1px 0 rgba(255, 255, 255, 0.08);
+            border: 1px solid rgba(255, 255, 255, 0.07);
+        }
+
+        /* Animated Mini Equalizer Bars */
+        @keyframes eqBounce {
+            0%, 100% { height: 25%; }
+            50% { height: 100%; }
+        }
+        .eq-bar { animation: eqBounce 0.7s ease-in-out infinite; }
+        .eq-bar:nth-child(2) { animation-delay: 0.2s; }
+        .eq-bar:nth-child(3) { animation-delay: 0.4s; }
+
+        /* Fullscreen Rotated Cinema Mode */
+        .cinema-rotated-landscape {
+            width: 100vh !important;
+            height: 100vw !important;
+            transform: rotate(90deg);
+            transform-origin: center center;
+        }
+
+        /* ========================================================= */
+        /* PURE GLASSMORPHIC THEME OVERRIDES                         */
+        /* ========================================================= */
+        body.theme-glass {
+            background:
+                radial-gradient(circle at 15% 20%, rgba(56, 189, 248, 0.34), transparent 42%),
+                radial-gradient(circle at 85% 18%, rgba(244, 63, 94, 0.30), transparent 44%),
+                radial-gradient(circle at 50% 85%, rgba(168, 85, 247, 0.32), transparent 48%),
+                linear-gradient(135deg, #090d16 0%, #111827 50%, #0b1120 100%);
+        }
+
+        body.theme-glass::before,
+        body.theme-glass::after {
+            content: '';
+            position: fixed;
+            border-radius: 9999px;
+            pointer-events: none;
+            z-index: 0;
+            filter: blur(70px);
+        }
+
+        body.theme-glass::before {
+            width: 340px;
+            height: 340px;
+            top: 6%;
+            left: 8%;
+            background: rgba(34, 211, 238, 0.25);
+        }
+
+        body.theme-glass::after {
+            width: 380px;
+            height: 380px;
+            bottom: 6%;
+            right: 8%;
+            background: rgba(236, 72, 153, 0.22);
+        }
+
+        body.theme-glass .matte-device {
+            background: linear-gradient(155deg, rgba(255, 255, 255, 0.14) 0%, rgba(255, 255, 255, 0.05) 100%);
+            backdrop-filter: blur(28px) saturate(185%);
+            -webkit-backdrop-filter: blur(28px) saturate(185%);
+            border: 1px solid rgba(255, 255, 255, 0.22);
+            box-shadow:
+                0 24px 60px rgba(0, 0, 0, 0.45),
+                inset 0 1px 1px rgba(255, 255, 255, 0.35);
+        }
+
+        body.theme-glass .recessed-screen {
+            background:
+                linear-gradient(145deg, rgba(255, 255, 255, 0.12), rgba(15, 23, 42, 0.35)) padding-box,
+                conic-gradient(
+                    from var(--rgb-angle),
+                    rgba(255, 255, 255, 0.75),
+                    rgba(56, 189, 248, 0.7),
+                    rgba(244, 114, 182, 0.7),
+                    rgba(255, 255, 255, 0.75)
+                ) border-box;
+            backdrop-filter: blur(18px);
+            -webkit-backdrop-filter: blur(18px);
+            box-shadow:
+                0 12px 32px rgba(0, 0, 0, 0.32),
+                inset 0 1px 1px rgba(255, 255, 255, 0.32);
+        }
+
+        body.theme-glass .click-wheel-outer {
+            background: linear-gradient(145deg, rgba(255, 255, 255, 0.18), rgba(255, 255, 255, 0.06));
+            backdrop-filter: blur(24px) saturate(170%);
+            -webkit-backdrop-filter: blur(24px) saturate(170%);
+            border: 1px solid rgba(255, 255, 255, 0.28);
+            box-shadow:
+                0 16px 36px rgba(0, 0, 0, 0.35),
+                inset 0 1px 2px rgba(255, 255, 255, 0.42);
+        }
+
+        body.theme-glass .click-wheel-center {
+            background: linear-gradient(145deg, rgba(255, 255, 255, 0.24), rgba(255, 255, 255, 0.08));
+            backdrop-filter: blur(18px);
+            -webkit-backdrop-filter: blur(18px);
+            border: 1px solid rgba(255, 255, 255, 0.35);
+            box-shadow:
+                0 6px 16px rgba(0, 0, 0, 0.25),
+                inset 0 1px 1px rgba(255, 255, 255, 0.45);
+        }
+
+        body.theme-glass .tactile-round-btn {
+            background: linear-gradient(145deg, rgba(255, 255, 255, 0.18), rgba(255, 255, 255, 0.06));
+            backdrop-filter: blur(16px);
+            -webkit-backdrop-filter: blur(16px);
+            border: 1px solid rgba(255, 255, 255, 0.25);
+            box-shadow:
+                0 8px 20px rgba(0, 0, 0, 0.28),
+                inset 0 1px 1px rgba(255, 255, 255, 0.35);
+        }
+
+        body.theme-glass .active-track-slot {
+            background: linear-gradient(135deg, rgba(255, 255, 255, 0.22), rgba(255, 255, 255, 0.08));
+            backdrop-filter: blur(16px);
+            -webkit-backdrop-filter: blur(16px);
+            border: 1px solid rgba(255, 255, 255, 0.28);
+            box-shadow: 0 6px 18px rgba(0, 0, 0, 0.22);
+        }
+
+        body.theme-glass .mini-dock {
+            background: linear-gradient(135deg, rgba(255, 255, 255, 0.18), rgba(255, 255, 255, 0.07));
+            backdrop-filter: blur(22px) saturate(180%);
+            -webkit-backdrop-filter: blur(22px) saturate(180%);
+            border: 1px solid rgba(255, 255, 255, 0.26);
+            box-shadow:
+                0 12px 28px rgba(0, 0, 0, 0.32),
+                inset 0 1px 1px rgba(255, 255, 255, 0.38);
+        }
+
+        body.theme-glass #yt-search-input,
+        body.theme-glass #video-search-input {
+            background: rgba(255, 255, 255, 0.10);
+            backdrop-filter: blur(14px);
+            -webkit-backdrop-filter: blur(14px);
+            border-color: rgba(255, 255, 255, 0.24);
+        }
+
+        body.theme-glass #toast {
+            background: rgba(255, 255, 255, 0.16);
+            backdrop-filter: blur(22px) saturate(180%);
+            -webkit-backdrop-filter: blur(22px) saturate(180%);
+            border-color: rgba(255, 255, 255, 0.28);
+        }
+    </style>
+</head>
+<body class="bg-[#26272B] text-gray-200 min-h-dvh flex items-center justify-center p-0 selection:bg-white selection:text-black overflow-x-hidden relative">
+
+    <!-- 3-Screen Hardware Deck Container (Left: Queue/FM, Center: Main iPod Player, Right: Video Player) -->
+    <main id="dual-deck-viewport" class="relative z-10 w-full max-w-[1180px] flex lg:grid lg:grid-cols-3 overflow-x-auto lg:overflow-visible snap-x snap-mandatory scroll-smooth no-scrollbar gap-0 lg:gap-6 items-stretch lg:items-start lg:justify-items-center">
+
+        <!-- ========================================================= -->
+        <!-- SCREEN 1 (LEFT DECK): PLAYLIST QUEUE, FM & MINI DOCK      -->
+        <!-- ========================================================= -->
+        <section id="screen-queue" class="w-full max-w-none sm:max-w-[390px] lg:max-w-[360px] min-h-dvh lg:min-h-[680px] shrink-0 snap-start sm:snap-center mx-auto lg:mx-0 matte-device rounded-none p-5 sm:p-6 flex flex-col justify-between relative">
+            <!-- Top Header Bar -->
+            <header class="flex items-center justify-between px-1 mb-4">
+                <button type="button" id="btn-back-player" title="Go to Main iPod Player" class="w-7 h-7 rounded-full flex items-center justify-center text-gray-400 hover:text-white transition active:scale-90">
+                    <i class="ph-bold ph-caret-right text-sm pointer-events-none"></i>
+                </button>
+
+                <span id="queue-header-label" class="text-[10px] font-semibold tracking-[0.2em] text-gray-300 uppercase truncate max-w-[210px]">
+                    DILSE • ALL FREE SONGS
+                </span>
+
+                <span id="queue-count" class="text-[9px] font-mono text-gray-500">0</span>
+            </header>
+
+            <!-- Center Mini Squircle Artwork Flanked by Like & Repeat Round Buttons -->
+            <div class="flex items-center justify-center gap-5 my-2">
+                <button type="button" id="btn-like-current" title="Like / Favorite Current Song" class="w-10 h-10 rounded-full tactile-round-btn flex items-center justify-center text-gray-300 hover:text-rose-400 transition">
+                    <i id="like-current-icon" class="ph-fill ph-heart text-sm pointer-events-none"></i>
+                </button>
+
+                <div class="w-24 h-24 rounded-[22px] recessed-screen p-1.5 flex items-center justify-center shrink-0">
+                    <div class="w-full h-full rounded-[17px] overflow-hidden bg-[#121315] relative flex items-center justify-center">
+                        <i class="ph-duotone ph-music-notes text-2xl text-white/20"></i>
+                        <img id="mini-cover-art" src="" alt="" class="absolute inset-0 w-full h-full object-cover" onerror="this.style.display='none'">
+                    </div>
+                </div>
+
+                <button type="button" id="btn-repeat" title="Repeat Track" class="w-10 h-10 rounded-full tactile-round-btn flex items-center justify-center text-gray-300 hover:text-white transition">
+                    <i class="ph-bold ph-repeat text-sm pointer-events-none"></i>
+                </button>
+            </div>
+
+            <!-- Category / FM / Language Filter Chips -->
+            <div id="category-tabs-bar" class="flex items-center gap-1.5 overflow-x-auto py-2.5 mt-2 no-scrollbar shrink-0 border-b border-white/[0.05]">
+                <button type="button" id="btn-load-south100" data-cat-index="0" class="cat-tab shrink-0 px-2.5 py-1 rounded-full bg-white/15 text-white text-[10px] font-medium transition">All</button>
+                <button type="button" id="btn-local-tab" data-cat-index="1" class="cat-tab shrink-0 px-2.5 py-1 rounded-full bg-white/[0.04] hover:bg-white/10 text-[10px] text-amber-300 font-medium transition flex items-center gap-1">
+                    <i class="ph-bold ph-folder-open text-xs"></i> Local (<span id="local-count">0</span>)
+                </button>
+                <button type="button" id="btn-fm-tab" data-cat-index="2" class="cat-tab shrink-0 px-2.5 py-1 rounded-full bg-white/[0.04] hover:bg-white/10 text-[10px] text-emerald-400 font-medium transition flex items-center gap-1">
+                    <i class="ph-bold ph-radio text-xs"></i> FM Radio
+                </button>
+                <button type="button" id="btn-trending-tab" data-cat-index="3" class="cat-tab shrink-0 px-2.5 py-1 rounded-full bg-white/[0.04] hover:bg-white/10 text-[10px] text-gray-400 transition">Trending</button>
+                <button type="button" id="btn-liked-tab" data-cat-index="4" class="cat-tab shrink-0 px-2.5 py-1 rounded-full bg-white/[0.04] hover:bg-white/10 text-[10px] text-gray-400 transition">Liked (<span id="liked-count">0</span>)</button>
+                <button type="button" data-query="Telugu" data-cat-index="5" class="cat-tab quick-chip shrink-0 px-2.5 py-1 rounded-full bg-white/[0.04] hover:bg-white/10 text-[10px] text-gray-400 transition">Telugu</button>
+                <button type="button" data-query="Tamil" data-cat-index="6" class="cat-tab quick-chip shrink-0 px-2.5 py-1 rounded-full bg-white/[0.04] hover:bg-white/10 text-[10px] text-gray-400 transition">Tamil</button>
+                <button type="button" data-query="Kannada" data-cat-index="7" class="cat-tab quick-chip shrink-0 px-2.5 py-1 rounded-full bg-white/[0.04] hover:bg-white/10 text-[10px] text-gray-400 transition">Kannada</button>
+                <button type="button" data-query="Malayalam" data-cat-index="8" class="cat-tab quick-chip shrink-0 px-2.5 py-1 rounded-full bg-white/[0.04] hover:bg-white/10 text-[10px] text-gray-400 transition">Malayalam</button>
+            </div>
+
+            <!-- Numbered Tracklist -->
+            <ul id="playlist" class="overflow-y-auto space-y-1 my-2.5 pr-1 h-[245px]">
+                <!-- Dynamically Populated Tracks & FM Stations -->
+            </ul>
+
+            <!-- Clickable Bottom Docked Mini-Player Pill (Opens Details Popup) -->
+            <div id="dock-bar-trigger" role="button" tabindex="0" title="Tap for Track / FM Details" class="mini-dock rounded-2xl p-2 flex items-center justify-between gap-2.5 mt-1 cursor-pointer hover:border-white/20 transition">
+                <div class="flex items-center gap-2.5 min-w-0">
+                    <img id="dock-cover-art" src="https://placehold.co/80x80/18191B/9CA3AF?text=D" alt=""
+                         onerror="this.src='https://placehold.co/80x80/18191B/9CA3AF?text=D'"
+                         class="w-9 h-9 rounded-xl object-cover bg-black shrink-0 border border-white/10">
+                    <div class="min-w-0">
+                        <p id="dock-track-title" class="text-xs font-medium text-gray-200 truncate">Select a song</p>
+                        <p class="text-[9px] font-mono text-gray-500">Tap for details</p>
+                    </div>
+                </div>
+                <div class="flex items-center gap-2 pr-1 shrink-0" onclick="event.stopPropagation()">
+                    <button type="button" id="btn-dock-like" title="Like" class="p-1.5 text-gray-300 hover:text-rose-400 transition active:scale-90">
+                        <i id="dock-like-icon" class="ph-bold ph-heart text-base pointer-events-none"></i>
+                    </button>
+                    <button type="button" id="btn-dock-play" title="Play / Pause" class="p-1.5 text-gray-200 hover:text-white transition active:scale-90">
+                        <i id="dock-play-icon" class="ph-fill ph-play text-base pointer-events-none"></i>
+                    </button>
+                </div>
+            </div>
+
+            <!-- Mobile Screen Indicator Dots -->
+            <div class="lg:hidden flex items-center justify-center gap-1.5 mt-3">
+                <span class="w-4 h-1 rounded-full bg-white/70"></span>
+                <span class="w-1.5 h-1 rounded-full bg-white/20"></span>
+                <span class="w-1.5 h-1 rounded-full bg-white/20"></span>
+            </div>
+        </section>
+
+        <!-- ========================================================= -->
+        <!-- SCREEN 2 (CENTER MAIN DEVICE): IPOD CLICK-WHEEL DECK      -->
+        <!-- ========================================================= -->
+        <section id="screen-player" class="w-full max-w-none sm:max-w-[400px] lg:max-w-[380px] min-h-dvh lg:min-h-[680px] shrink-0 snap-start sm:snap-center mx-auto lg:mx-0 matte-device rounded-none px-6 py-6 sm:px-7 sm:py-7 flex flex-col justify-between gap-4 relative">
+            <!-- Top Bar: Left Search & Queue, Center DILSE, Right FM Button (No Volume or Video Icon) -->
+            <header class="flex items-center justify-between shrink-0">
+                <div class="flex items-center gap-1">
+                    <button type="button" id="btn-local-picker" title="Open Local Audio / Video Files" class="w-8 h-8 rounded-full bg-amber-500/15 border border-amber-400/30 flex items-center justify-center text-amber-300 hover:bg-amber-500/25 transition active:scale-90">
+                        <i class="ph-bold ph-folder-open text-xs pointer-events-none"></i>
+                    </button>
+                    <button type="button" id="btn-theme-toggle" title="Switch Theme (Matte / Pure Glassmorphic)" class="w-8 h-8 rounded-full bg-white/[0.06] border border-white/15 flex items-center justify-center text-gray-200 hover:bg-white/15 transition active:scale-90">
+                        <i id="theme-toggle-icon" class="ph-bold ph-sparkle text-xs pointer-events-none"></i>
+                    </button>
+                    <button type="button" id="btn-fm-header" title="Live FM Radio" class="px-2.5 h-8 rounded-full bg-emerald-500/15 border border-emerald-400/30 flex items-center gap-1 text-emerald-300 hover:bg-emerald-500/25 transition active:scale-90">
+                        <i class="ph-bold ph-radio text-xs pointer-events-none"></i>
+                        <span class="text-[10px] font-mono font-semibold">FM</span>
+                    </button>
+                </div>
+            </header>
+
+            <!-- Hidden Multi-File Picker for Device Audio & Video -->
+            <input id="local-file-input" type="file" accept="audio/*,video/*" multiple class="hidden">
+                        <i id="theme-toggle-icon" class="ph-bold ph-sparkle text-xs pointer-events-none"></i>
+                    </button>
+                    <button type="button" id="btn-fm-header" title="Live FM Radio" class="px-2.5 h-8 rounded-full bg-emerald-500/15 border border-emerald-400/30 flex items-center gap-1 text-emerald-300 hover:bg-emerald-500/25 transition active:scale-90">
+                        <i class="ph-bold ph-radio text-xs pointer-events-none"></i>
+                        <span class="text-[10px] font-mono font-semibold">FM</span>
+                    </button>
+                </div>
+            </header>
+
+            <!-- Collapsible Inline Search Bar (Supports Free Songs + YouTube Audio Search/Links) -->
+            <div id="yt-search-drawer" class="hidden shrink-0">
+                <form id="yt-search-form" class="flex items-center gap-2">
+                    <input id="yt-search-input" type="text" placeholder="Search song or paste YouTube link..."
+                           class="w-full bg-[#151618] border border-white/10 focus:border-white/30 rounded-xl px-3.5 py-2 text-xs text-white placeholder-gray-500 outline-none">
+                    <button type="submit" class="px-3.5 py-2 rounded-xl bg-white/15 hover:bg-white/25 text-white text-[10px] font-mono font-semibold tracking-wider transition active:scale-95 shrink-0">
+                        GO
+                    </button>
+                </form>
+            </div>
+
+            <!-- Centerpiece: RGB Squircle Album Art + Live FM Tuner + Track Info -->
+            <div class="flex-1 flex flex-col items-center justify-center gap-4 my-1 min-h-0">
+                <div id="art-card" class="w-full max-w-[244px] sm:max-w-[266px] aspect-square mx-auto recessed-screen rounded-[26px] overflow-hidden relative flex items-center justify-center p-1.5 border border-white/[0.04]">
+                    <div class="w-full h-full rounded-[20px] overflow-hidden relative bg-[#111214] flex items-center justify-center">
+                        <!-- Fallback Emblem -->
+                        <div class="flex flex-col items-center justify-center text-white/20 select-none">
+                            <i class="ph-duotone ph-waveform text-5xl"></i>
+                            <span class="text-[9px] font-mono tracking-widest mt-2">DILSE DECK</span>
+                        </div>
+
+                        <!-- Album Artwork -->
+                        <img id="cover-art" src="" alt="Album Cover" class="absolute inset-0 w-full h-full object-cover transition-transform duration-700"
+                             onerror="this.style.display='none'">
+
+                        <!-- Live FM Badge -->
+                        <div id="fm-live-badge" class="hidden absolute top-2.5 right-2.5 z-10 px-2 py-0.5 rounded-full bg-black/75 border border-emerald-400/40 flex items-center gap-1.5">
+                            <span class="w-1.5 h-1.5 rounded-full bg-emerald-400 animate-ping"></span>
+                            <span class="text-[9px] font-mono font-semibold text-emerald-300">LIVE FM</span>
+                        </div>
+
+                        <!-- Analog / Digital FM Frequency Dial Overlay -->
+                        <div id="fm-tuner-box" class="hidden absolute inset-x-2.5 bottom-2.5 z-10 rounded-xl bg-black/80 backdrop-blur-md border border-white/10 px-3 py-2">
+                            <div class="flex items-center justify-between text-[10px] font-mono mb-1">
+                                <span class="text-gray-400">FM TUNER</span>
+                                <span id="fm-tuner-freq" class="text-emerald-300 font-semibold">98.3 MHz</span>
+                            </div>
+                            <div class="relative h-3 bg-white/5 rounded overflow-hidden flex items-center px-1">
+                                <div class="w-full flex justify-between text-[7px] font-mono text-gray-500 select-none">
+                                    <span>88</span><span>92</span><span>96</span><span>100</span><span>104</span><span>108</span>
+                                </div>
+                                <span id="fm-tuner-needle" class="absolute top-0 bottom-0 w-0.5 bg-rose-500 shadow-[0_0_8px_#f43f5e] transition-all duration-500" style="left: 51%;"></span>
+                            </div>
+                        </div>
+
+                        <div class="absolute inset-0 shadow-[inset_0_0_24px_rgba(0,0,0,0.45)] pointer-events-none"></div>
+                    </div>
+                </div>
+
+                <!-- Track Title & Singer - Music Director -->
+                <div class="text-center w-full px-3">
+                    <h1 id="track-title" class="text-base sm:text-lg font-semibold text-gray-100 truncate tracking-tight">Loading Full Songs...</h1>
+                    <p id="track-singer-director" class="text-xs text-gray-400 truncate mt-1">Singer - Music Director</p>
+                    <span id="track-status" class="hidden">READY</span>
+                </div>
+            </div>
+
+            <!-- Bottom Controls Stack: Scrubber + Tactile Click Wheel -->
+            <div class="flex flex-col gap-5 shrink-0">
+                <div class="px-1">
+                    <div id="progress-container" class="w-full h-5 flex items-center cursor-pointer group relative">
+                        <div class="w-full h-[3px] bg-white/10 group-hover:bg-white/15 rounded-full overflow-visible relative transition-colors">
+                            <div id="progress-bar" class="h-full bg-gray-200 rounded-full w-0 relative transition-all duration-100">
+                                <span class="w-3.5 h-3.5 rounded-full bg-[#3A3B3F] group-hover:scale-110 border border-white/30 shadow-[0_2px_6px_rgba(0,0,0,0.85)] absolute right-0 top-1/2 -translate-y-1/2 translate-x-1/2 transition-transform"></span>
+                            </div>
+                        </div>
+                    </div>
+                    <div class="flex justify-between text-[10px] font-mono text-gray-400 mt-1">
+                        <span id="current-time">0:00</span>
+                        <span id="duration-time">-0:00</span>
+                    </div>
+                </div>
+
+                <!-- Circular Click Wheel Controller (Clean without Loop button) -->
+                <div class="flex items-center justify-center pb-1">
+                    <div class="relative w-44 h-44 sm:w-48 sm:h-48 rounded-full click-wheel-outer flex items-center justify-center select-none">
+                        <!-- Top: Shuffle -->
+                        <button type="button" id="btn-shuffle" title="Shuffle" class="absolute top-3 left-1/2 -translate-x-1/2 w-9 h-9 rounded-full flex items-center justify-center text-gray-300 hover:text-white active:scale-90 transition">
+                            <i class="ph-bold ph-shuffle text-base pointer-events-none"></i>
+                        </button>
+
+                        <!-- Left: Previous Track -->
+                        <button type="button" id="btn-prev" title="Previous Track" class="absolute left-3 top-1/2 -translate-y-1/2 w-9 h-9 rounded-full flex items-center justify-center text-gray-300 hover:text-white active:scale-90 transition">
+                            <i class="ph-fill ph-skip-back text-base pointer-events-none"></i>
+                        </button>
+
+                        <!-- Right: Next Track -->
+                        <button type="button" id="btn-next" title="Next Track" class="absolute right-3 top-1/2 -translate-y-1/2 w-9 h-9 rounded-full flex items-center justify-center text-gray-300 hover:text-white active:scale-90 transition">
+                            <i class="ph-fill ph-skip-forward text-base pointer-events-none"></i>
+                        </button>
+
+                        <!-- Bottom: Play / Pause -->
+                        <button type="button" id="btn-play" title="Play / Pause" class="absolute bottom-3 left-1/2 -translate-x-1/2 w-11 h-9 rounded-full flex items-center justify-center text-gray-200 hover:text-white active:scale-90 transition">
+                            <i id="play-icon" class="ph-fill ph-play text-lg pointer-events-none"></i>
+                        </button>
+
+                        <!-- Diagonal -10s / +10s -->
+                        <button type="button" id="btn-rw" title="Rewind -10s" class="absolute bottom-6 left-6 w-7 h-7 rounded-full flex items-center justify-center text-[10px] font-mono text-gray-500 hover:text-gray-200 active:scale-90 transition">
+                            -10
+                        </button>
+                        <button type="button" id="btn-ff" title="Fast Forward +10s" class="absolute bottom-6 right-6 w-7 h-7 rounded-full flex items-center justify-center text-[10px] font-mono text-gray-500 hover:text-gray-200 active:scale-90 transition">
+                            +10
+                        </button>
+
+                        <!-- Center Tactile Like Button -->
+                        <button type="button" id="btn-center-like" title="Like Current Song" class="w-16 h-16 rounded-full click-wheel-center flex items-center justify-center text-gray-400 hover:text-rose-400 active:scale-95 transition">
+                            <i id="center-like-icon" class="ph-bold ph-heart text-lg opacity-60 pointer-events-none"></i>
+                        </button>
+                    </div>
+                </div>
+
+                <!-- Mobile Screen Indicator Dots -->
+                <div class="lg:hidden flex items-center justify-center gap-1.5">
+                    <span class="w-1.5 h-1 rounded-full bg-white/20"></span>
+                    <span class="w-4 h-1 rounded-full bg-white/70"></span>
+                    <span class="w-1.5 h-1 rounded-full bg-white/20"></span>
+                </div>
+            </div>
+        </section>
+
+        <!-- ========================================================= -->
+        <!-- SCREEN 3 (RIGHT DECK): HORIZONTAL & VERTICAL VIDEO PLAYER -->
+        <!-- ========================================================= -->
+        <section id="screen-video" class="w-full max-w-none sm:max-w-[390px] lg:max-w-[360px] min-h-dvh lg:min-h-[680px] shrink-0 snap-start sm:snap-center mx-auto lg:mx-0 matte-device rounded-none p-5 sm:p-6 flex flex-col justify-between gap-3 relative">
+            <!-- Top Header Bar -->
+            <header class="flex items-center justify-between px-1">
+                <button type="button" id="btn-video-back" title="Back to Main iPod Player" class="w-8 h-8 rounded-full flex items-center justify-center text-gray-400 hover:text-white hover:bg-white/[0.05] transition active:scale-90">
+                    <i class="ph-bold ph-caret-left text-sm pointer-events-none"></i>
+                </button>
+
+                <div class="flex flex-col items-center">
+                    <span class="text-[10px] font-semibold tracking-[0.22em] text-gray-200 uppercase">DILSE CINEMA</span>
+                    <span id="video-orientation-label" class="text-[9px] font-mono text-gray-500">HORIZONTAL • 16:9</span>
+                </div>
+
+                <!-- Horizontal / Vertical / Fullscreen Toggle Controls -->
+                <div class="flex items-center gap-1 bg-[#16171A] border border-white/10 rounded-full p-0.5">
+                    <button type="button" id="btn-orient-h" title="Horizontal 16:9 Mode" class="px-2 py-1 rounded-full bg-white/15 text-white text-[9px] font-mono font-semibold transition">
+                        H
+                    </button>
+                    <button type="button" id="btn-orient-v" title="Vertical 9:16 Mode" class="px-2 py-1 rounded-full text-gray-400 hover:text-white text-[9px] font-mono font-semibold transition">
+                        V
+                    </button>
+                    <button type="button" id="btn-video-fullscreen" title="Fullscreen Rotated Cinema" class="w-6 h-6 rounded-full flex items-center justify-center text-gray-300 hover:text-white transition">
+                        <i class="ph-bold ph-arrows-out text-xs pointer-events-none"></i>
+                    </button>
+                </div>
+            </header>
+
+            <!-- Video Search Input (Search YouTube Videos or Paste Link) -->
+            <form id="video-search-form" class="flex items-center gap-2 shrink-0">
+                <input id="video-search-input" type="text" placeholder="Search YouTube video or paste URL..."
+                       class="w-full bg-[#151618] border border-white/10 focus:border-white/30 rounded-xl px-3 py-2 text-xs text-white placeholder-gray-500 outline-none">
+                <button type="submit" class="px-3 py-2 rounded-xl bg-white/15 hover:bg-white/25 text-white text-[10px] font-mono font-semibold transition active:scale-95 shrink-0">
+                    PLAY
+                </button>
+            </form>
+
+            <!-- Dynamic Horizontal (16:9) / Vertical (9:16) Cinema Viewport -->
+            <div class="flex-1 flex flex-col items-center justify-center my-1 min-h-0">
+                <div id="video-frame-wrapper" class="w-full aspect-video max-h-[340px] recessed-screen rounded-[22px] p-1.5 transition-all duration-500 flex items-center justify-center relative">
+                    <div id="cinema-embed-mount" class="w-full h-full rounded-[16px] overflow-hidden bg-[#0D0E10] relative flex items-center justify-center">
+                        <!-- YouTube Video Player Target -->
+                        <div id="cinema-yt-player" class="w-full h-full pointer-events-none"></div>
+
+                        <!-- Local HTML5 Video Player Target -->
+                        <video id="cinema-local-video" class="hidden w-full h-full object-contain bg-black" playsinline></video>
+
+                        <!-- Placeholder State -->
+                        <div id="video-empty-state" class="absolute inset-0 flex flex-col items-center justify-center text-center p-4 bg-[#111214]">
+                            <i class="ph-duotone ph-film-strip text-4xl text-white/25 mb-2"></i>
+                            <p class="text-xs font-medium text-gray-300">YouTube & Local Video Deck</p>
+                            <p class="text-[10px] text-gray-500 mt-1">Search YouTube, sync a song, or open local video files</p>
+                        </div>
+                    </div>
+                </div>
+
+                <!-- Now Watching Metadata -->
+                <div class="text-center w-full px-2 mt-3">
+                    <h2 id="video-now-title" class="text-xs sm:text-sm font-semibold text-gray-100 truncate">Ready for Video Playback</h2>
+                    <p id="video-now-sub" class="text-[10px] font-mono text-gray-400 truncate mt-0.5">Select Horizontal (16:9) or Vertical (9:16)</p>
+                </div>
+            </div>
+
+            <!-- Custom Tactile Video Controls + Progress Scrubber -->
+            <div class="flex flex-col gap-2.5 shrink-0">
+                <div class="px-1">
+                    <div id="vid-progress-container" class="w-full h-4 flex items-center cursor-pointer group">
+                        <div class="w-full h-[3px] bg-white/10 rounded-full overflow-hidden">
+                            <div id="vid-progress-bar" class="h-full bg-rose-400 rounded-full w-0 transition-all duration-150"></div>
+                        </div>
+                    </div>
+                    <div class="flex justify-between text-[9px] font-mono text-gray-500 mt-0.5">
+                        <span id="vid-current-time">0:00</span>
+                        <span id="vid-duration-time">0:00</span>
+                    </div>
+                </div>
+
+                <!-- Custom Round Video Transport Buttons -->
+                <div class="flex items-center justify-center gap-3">
+                    <button type="button" id="btn-vid-rw" title="Rewind -10s" class="w-9 h-9 rounded-full tactile-round-btn flex items-center justify-center text-[10px] font-mono text-gray-300 hover:text-white">
+                        -10
+                    </button>
+                    <button type="button" id="btn-vid-play" title="Play / Pause Video" class="w-11 h-11 rounded-full tactile-round-btn flex items-center justify-center text-white">
+                        <i id="vid-play-icon" class="ph-fill ph-play text-base pointer-events-none"></i>
+                    </button>
+                    <button type="button" id="btn-vid-ff" title="Forward +10s" class="w-9 h-9 rounded-full tactile-round-btn flex items-center justify-center text-[10px] font-mono text-gray-300 hover:text-white">
+                        +10
+                    </button>
+                    <button type="button" id="btn-vid-mute" title="Mute / Unmute Video" class="w-9 h-9 rounded-full tactile-round-btn flex items-center justify-center text-gray-300 hover:text-white">
+                        <i id="vid-mute-icon" class="ph-bold ph-speaker-high text-sm pointer-events-none"></i>
+                    </button>
+                    <button type="button" id="btn-vid-to-audio" title="Switch to Audio Only on Main iPod" class="px-2.5 h-9 rounded-full tactile-round-btn flex items-center gap-1 text-[9px] font-mono text-emerald-300 hover:text-white">
+                        <i class="ph-bold ph-headphones text-xs pointer-events-none"></i> AUDIO
+                    </button>
+                </div>
+
+                <!-- Quick Video Presets & Sync Current Song -->
+                <div class="flex items-center gap-1.5 overflow-x-auto no-scrollbar pt-1">
+                    <button type="button" id="btn-open-local-video" class="shrink-0 px-2.5 py-1.5 rounded-xl bg-amber-500/20 border border-amber-400/30 hover:bg-amber-500/30 text-amber-200 text-[10px] font-medium flex items-center gap-1 transition">
+                        <i class="ph-bold ph-folder-open text-xs"></i> Local Video
+                    </button>
+                    <button type="button" id="btn-sync-audio-to-video" class="shrink-0 px-2.5 py-1.5 rounded-xl bg-white/15 hover:bg-white/25 text-white text-[10px] font-medium flex items-center gap-1 transition">
+                        <i class="ph-fill ph-play-circle text-xs"></i> Watch Current Song
+                    </button>
+                    <button type="button" data-vquery="Chuttamalle Full Video Song" data-vorient="h" class="video-preset-chip shrink-0 px-2.5 py-1.5 rounded-xl bg-white/[0.05] hover:bg-white/10 text-[10px] text-gray-300 transition">
+                        Chuttamalle (16:9)
+                    </button>
+                    <button type="button" data-vquery="South Indian Dance Shorts Vertical" data-vorient="v" class="video-preset-chip shrink-0 px-2.5 py-1.5 rounded-xl bg-white/[0.05] hover:bg-white/10 text-[10px] text-gray-300 transition">
+                        Vertical Shorts (9:16)
+                    </button>
+                </div>
+            </div>
+
+            <!-- Mobile Screen Indicator Dots -->
+            <div class="lg:hidden flex items-center justify-center gap-1.5 mt-1">
+                <span class="w-1.5 h-1 rounded-full bg-white/20"></span>
+                <span class="w-1.5 h-1 rounded-full bg-white/20"></span>
+                <span class="w-4 h-1 rounded-full bg-white/70"></span>
+            </div>
+        </section>
+
+    </main>
+
+    <!-- ========================================================= -->
+    <!-- QUEUE BOTTOM DOCK DETAILS POPUP MODAL                     -->
+    <!-- ========================================================= -->
+    <div id="dock-details-modal" class="fixed inset-0 z-50 hidden items-center justify-center bg-black/75 backdrop-blur-sm p-4">
+        <div class="w-full max-w-[340px] matte-device rounded-3xl border border-white/15 p-5 shadow-2xl relative">
+            <div class="flex items-center justify-between mb-4">
+                <span id="modal-badge" class="px-2.5 py-0.5 rounded-full bg-white/10 text-[9px] font-mono tracking-wider text-gray-200 uppercase">NOW PLAYING</span>
+                <button type="button" id="btn-close-dock-details" class="w-7 h-7 rounded-full bg-white/10 hover:bg-white/20 flex items-center justify-center text-gray-300">
+                    <i class="ph-bold ph-x text-xs pointer-events-none"></i>
+                </button>
+            </div>
+
+            <div class="flex flex-col items-center text-center">
+                <img id="modal-cover-art" src="https://placehold.co/200x200/18191B/9CA3AF?text=D" alt="" class="w-28 h-28 rounded-2xl object-cover border border-white/15 shadow-lg mb-3">
+                <h3 id="modal-track-title" class="text-sm font-semibold text-white line-clamp-2">Track Title</h3>
+                <p id="modal-track-subtitle" class="text-xs text-gray-400 mt-1">Singer - Music Director</p>
+            </div>
+
+            <div class="grid grid-cols-2 gap-2 mt-4 bg-[#141518] rounded-2xl p-3 border border-white/[0.06] text-[10px]">
+                <div>
+                    <span class="text-gray-500 block font-mono">SINGER / STATION</span>
+                    <span id="modal-singer" class="text-gray-200 font-medium truncate block mt-0.5">—</span>
+                </div>
+                <div>
+                    <span class="text-gray-500 block font-mono">DIRECTOR / FREQ</span>
+                    <span id="modal-director" class="text-gray-200 font-medium truncate block mt-0.5">—</span>
+                </div>
+                <div>
+                    <span class="text-gray-500 block font-mono">CATEGORY</span>
+                    <span id="modal-lang" class="text-gray-200 font-medium truncate block mt-0.5">—</span>
+                </div>
+                <div>
+                    <span class="text-gray-500 block font-mono">DURATION</span>
+                    <span id="modal-duration" class="text-gray-200 font-mono truncate block mt-0.5">0:00</span>
+                </div>
+            </div>
+
+            <div class="flex items-center gap-2 mt-4">
+                <button type="button" id="btn-modal-play" class="flex-1 py-2.5 rounded-xl bg-white text-black font-semibold text-xs flex items-center justify-center gap-1.5 active:scale-95 transition">
+                    <i id="modal-play-icon" class="ph-fill ph-play text-sm pointer-events-none"></i>
+                    <span id="modal-play-label">Play</span>
+                </button>
+                <button type="button" id="btn-modal-like" class="w-10 h-10 rounded-xl bg-white/10 hover:bg-white/20 flex items-center justify-center text-gray-200 active:scale-95 transition">
+                    <i id="modal-like-icon" class="ph-bold ph-heart text-base pointer-events-none"></i>
+                </button>
+                <button type="button" id="btn-modal-watch-video" class="px-3 h-10 rounded-xl bg-rose-500/20 border border-rose-400/30 text-rose-200 hover:bg-rose-500/30 text-[10px] font-mono font-semibold flex items-center gap-1 active:scale-95 transition">
+                    <i class="ph-fill ph-video-camera text-xs pointer-events-none"></i> VIDEO
+                </button>
+            </div>
+        </div>
+    </div>
+
+    <!-- ========================================================= -->
+    <!-- FULLSCREEN ROTATABLE CINEMA OVERLAY                       -->
+    <!-- ========================================================= -->
+    <div id="cinema-fs-overlay" class="fixed inset-0 z-50 hidden bg-black items-center justify-center overflow-hidden">
+        <div id="cinema-fs-stage" class="relative w-full h-full flex items-center justify-center transition-transform duration-300">
+            <div id="cinema-fs-mount" class="w-full h-full"></div>
+
+            <!-- Custom Fullscreen Top/Bottom HUD -->
+            <div class="absolute top-4 inset-x-4 z-20 flex items-center justify-between pointer-events-none">
+                <span id="cinema-fs-title" class="px-3 py-1 rounded-full bg-black/70 border border-white/15 text-xs text-white font-medium truncate max-w-[60%] pointer-events-auto">
+                    Dilse Cinema
+                </span>
+                <div class="flex items-center gap-2 pointer-events-auto">
+                    <button type="button" id="btn-fs-rotate-toggle" class="px-3 py-1.5 rounded-full bg-black/75 border border-white/20 text-[10px] font-mono text-white flex items-center gap-1">
+                        <i class="ph-bold ph-device-rotate text-xs pointer-events-none"></i> ROTATE
+                    </button>
+                    <button type="button" id="btn-fs-exit" class="w-8 h-8 rounded-full bg-black/75 border border-white/20 text-white flex items-center justify-center">
+                        <i class="ph-bold ph-arrows-in text-sm pointer-events-none"></i>
+                    </button>
+                </div>
+            </div>
+
+            <div class="absolute bottom-5 left-1/2 -translate-x-1/2 z-20 flex items-center gap-4 px-5 py-2.5 rounded-full bg-black/75 border border-white/15">
+                <button type="button" id="btn-fs-rw" class="text-xs font-mono text-gray-300 hover:text-white">-10s</button>
+                <button type="button" id="btn-fs-play" class="w-9 h-9 rounded-full bg-white text-black flex items-center justify-center">
+                    <i id="fs-play-icon" class="ph-fill ph-pause text-base pointer-events-none"></i>
+                </button>
+                <button type="button" id="btn-fs-ff" class="text-xs font-mono text-gray-300 hover:text-white">+10s</button>
+            </div>
+        </div>
+    </div>
+
+    <!-- Active Viewport-Safe Hidden YouTube Audio Player Host -->
+    <div id="yt-player-host" class="fixed bottom-0 right-0 w-16 h-16 pointer-events-none opacity-[0.01] z-0 overflow-hidden"></div>
+
+    <!-- YouTube IFrame Player API -->
+    <script src="https://www.youtube.com/iframe_api"></script>
+
+    <!-- Custom Matte Toast Notification Box -->
+    <div id="toast" class="fixed bottom-5 right-5 z-50 transform translate-y-20 opacity-0 transition-all duration-300 bg-[#1B1C1F] border border-white/15 shadow-2xl text-gray-200 px-4 py-2.5 rounded-xl flex items-center gap-2 text-xs font-mono">
+        <i class="ph-fill ph-info text-gray-300 text-sm"></i>
+        <span id="toast-msg">Notification</span>
+    </div>
+
+    <!-- Complete Self-Contained Audio, FM Radio & Cinema Video Deck Engine -->
+    <script>
+        document.addEventListener('DOMContentLoaded', () => {
+            // --- DOM References ---
+            const btnPlay = document.getElementById('btn-play');
+            const playIcon = document.getElementById('play-icon');
+            const btnDockPlay = document.getElementById('btn-dock-play');
+            const dockPlayIcon = document.getElementById('dock-play-icon');
+            const btnPrev = document.getElementById('btn-prev');
+            const btnRw = document.getElementById('btn-rw');
+            const btnFf = document.getElementById('btn-ff');
+            const btnNext = document.getElementById('btn-next');
+            const btnShuffle = document.getElementById('btn-shuffle');
+            const btnRepeat = document.getElementById('btn-repeat');
+            const btnToggleSearch = document.getElementById('btn-toggle-search');
+            const ytSearchDrawer = document.getElementById('yt-search-drawer');
+            const ytSearchForm = document.getElementById('yt-search-form');
+            const ytSearchInput = document.getElementById('yt-search-input');
+            const btnLikeCurrent = document.getElementById('btn-like-current');
+            const likeCurrentIcon = document.getElementById('like-current-icon');
+            const btnCenterLike = document.getElementById('btn-center-like');
+            const centerLikeIcon = document.getElementById('center-like-icon');
+            const btnDockLike = document.getElementById('btn-dock-like');
+            const dockLikeIcon = document.getElementById('dock-like-icon');
+            const btnLikedTab = document.getElementById('btn-liked-tab');
+            const likedCountEl = document.getElementById('liked-count');
+            const progressContainer = document.getElementById('progress-container');
+            const progressBar = document.getElementById('progress-bar');
+            const currentTimeEl = document.getElementById('current-time');
+            const durationTimeEl = document.getElementById('duration-time');
+            const trackTitle = document.getElementById('track-title');
+            const dockTrackTitle = document.getElementById('dock-track-title');
+            const trackSingerDirector = document.getElementById('track-singer-director');
+            const trackStatus = document.getElementById('track-status');
+            const modeIndicator = document.getElementById('mode-indicator');
+            const queueHeaderLabel = document.getElementById('queue-header-label');
+            const coverArt = document.getElementById('cover-art');
+            const miniCoverArt = document.getElementById('mini-cover-art');
+            const dockCoverArt = document.getElementById('dock-cover-art');
+            const playlistEl = document.getElementById('playlist');
+            const queueCountEl = document.getElementById('queue-count');
+            const btnLoadSouth100 = document.getElementById('btn-load-south100');
+            const btnBackPlayer = document.getElementById('btn-back-player');
+            const btnGoQueue = document.getElementById('btn-go-queue');
+            const dualDeckViewport = document.getElementById('dual-deck-viewport');
+            const screenPlayerEl = document.getElementById('screen-player');
+            const screenQueueEl = document.getElementById('screen-queue');
+            const screenVideoEl = document.getElementById('screen-video');
+            const btnTrendingTab = document.getElementById('btn-trending-tab');
+            const quickChips = document.querySelectorAll('.quick-chip');
+            const categoryTabs = Array.from(document.querySelectorAll('.cat-tab'));
+
+            // Video Deck & Fullscreen Controls
+            const btnVideoBack = document.getElementById('btn-video-back');
+            const btnOrientH = document.getElementById('btn-orient-h');
+            const btnOrientV = document.getElementById('btn-orient-v');
+            const btnVideoFullscreen = document.getElementById('btn-video-fullscreen');
+            const videoOrientationLabel = document.getElementById('video-orientation-label');
+            const videoFrameWrapper = document.getElementById('video-frame-wrapper');
+            const cinemaEmbedMount = document.getElementById('cinema-embed-mount');
+            const cinemaLocalVideo = document.getElementById('cinema-local-video');
+            const videoEmptyState = document.getElementById('video-empty-state');
+            const btnOpenLocalVideo = document.getElementById('btn-open-local-video');
+            const videoSearchForm = document.getElementById('video-search-form');
+            const videoSearchInput = document.getElementById('video-search-input');
+            const videoNowTitle = document.getElementById('video-now-title');
+            const videoNowSub = document.getElementById('video-now-sub');
+            const btnVidRw = document.getElementById('btn-vid-rw');
+            const btnVidPlay = document.getElementById('btn-vid-play');
+            const vidPlayIcon = document.getElementById('vid-play-icon');
+            const btnVidFf = document.getElementById('btn-vid-ff');
+            const btnVidMute = document.getElementById('btn-vid-mute');
+            const vidMuteIcon = document.getElementById('vid-mute-icon');
+            const btnVidToAudio = document.getElementById('btn-vid-to-audio');
+            const vidProgressContainer = document.getElementById('vid-progress-container');
+            const vidProgressBar = document.getElementById('vid-progress-bar');
+            const vidCurrentTime = document.getElementById('vid-current-time');
+            const vidDurationTime = document.getElementById('vid-duration-time');
+            const btnSyncAudioToVideo = document.getElementById('btn-sync-audio-to-video');
+            const videoPresetChips = document.querySelectorAll('.video-preset-chip');
+            const cinemaFsOverlay = document.getElementById('cinema-fs-overlay');
+            const cinemaFsStage = document.getElementById('cinema-fs-stage');
+            const cinemaFsMount = document.getElementById('cinema-fs-mount');
+            const cinemaFsTitle = document.getElementById('cinema-fs-title');
+            const btnFsRotateToggle = document.getElementById('btn-fs-rotate-toggle');
+            const btnFsExit = document.getElementById('btn-fs-exit');
+            const btnFsRw = document.getElementById('btn-fs-rw');
+            const btnFsPlay = document.getElementById('btn-fs-play');
+            const fsPlayIcon = document.getElementById('fs-play-icon');
+            const btnFsFf = document.getElementById('btn-fs-ff');
+
+            // FM & Details Popup Controls
+            const btnThemeToggle = document.getElementById('btn-theme-toggle');
+            const themeToggleIcon = document.getElementById('theme-toggle-icon');
+            const btnLocalPicker = document.getElementById('btn-local-picker');
+            const localFileInput = document.getElementById('local-file-input');
+            const btnLocalTab = document.getElementById('btn-local-tab');
+            const localCountEl = document.getElementById('local-count');
+            const btnFmHeader = document.getElementById('btn-fm-header');
+            const btnFmTab = document.getElementById('btn-fm-tab');
+            const dockBarTrigger = document.getElementById('dock-bar-trigger');
+            const dockDetailsModal = document.getElementById('dock-details-modal');
+            const btnCloseDockDetails = document.getElementById('btn-close-dock-details');
+            const btnModalPlay = document.getElementById('btn-modal-play');
+            const modalPlayIcon = document.getElementById('modal-play-icon');
+            const modalPlayLabel = document.getElementById('modal-play-label');
+            const btnModalLike = document.getElementById('btn-modal-like');
+            const modalLikeIcon = document.getElementById('modal-like-icon');
+            const btnModalWatchVideo = document.getElementById('btn-modal-watch-video');
+            const fmTunerBox = document.getElementById('fm-tuner-box');
+            const fmTunerFreq = document.getElementById('fm-tuner-freq');
+            const fmTunerNeedle = document.getElementById('fm-tuner-needle');
+            const fmLiveBadge = document.getElementById('fm-live-badge');
+
+            const toastEl = document.getElementById('toast');
+            const toastMsg = document.getElementById('toast-msg');
+
+            // --- Player State ---
+            let playlist = [];
+            let currentIndex = 0;
+            let activeCategoryIndex = 0;
+            let isPlaying = false;
+            let isShuffle = false;
+            let isRepeat = false;
+            let showingLikedOnly = false;
+            const MAX_SONG_DURATION = 600;
+            let likedSongs = [];
+            let localTracks = [];
+            let toastTimer = null;
+
+            // --- Cinema Video State ---
+            let cinemaYtPlayer = null;
+            let cinemaYtReady = false;
+            let cinemaVideoPlaying = false;
+            let cinemaVideoMuted = false;
+            let currentCinemaMode = 'youtube'; // 'youtube' | 'local'
+            let currentCinemaVideoId = null;
+            let currentCinemaLocalTrack = null;
+            let currentCinemaTitle = '';
+            let cinemaOrientation = 'h';
+            let cinemaPollTimer = null;
+            let isCinemaFullscreen = false;
+            let isFsRotated = false;
+            let currentTheme = 'matte';
+
+            function applyDeckTheme(themeName, notify = false) {
+                currentTheme = themeName === 'glass' ? 'glass' : 'matte';
+                document.body.classList.toggle('theme-glass', currentTheme === 'glass');
+                if (themeToggleIcon) {
+                    themeToggleIcon.className = currentTheme === 'glass'
+                        ? 'ph-fill ph-drop text-xs text-cyan-300 pointer-events-none'
+                        : 'ph-bold ph-sparkle text-xs pointer-events-none';
+                }
+                if (btnThemeToggle) {
+                    btnThemeToggle.title = currentTheme === 'glass'
+                        ? 'Theme: Pure Glassmorphic (Tap for Matte)'
+                        : 'Theme: Tactile Matte (Tap for Pure Glassmorphic)';
+                }
+                try {
+                    localStorage.setItem('dilse_deck_theme', currentTheme);
+                } catch (e) {}
+                if (notify) {
+                    showToast(currentTheme === 'glass' ? 'Theme: Pure Glassmorphic ✨' : 'Theme: Tactile Matte 🎛️');
+                }
+            }
+
+            try {
+                const savedTheme = localStorage.getItem('dilse_deck_theme');
+                if (savedTheme === 'glass' || savedTheme === 'matte') {
+                    applyDeckTheme(savedTheme, false);
+                }
+            } catch (e) {}
+
+            if (btnThemeToggle) {
+                btnThemeToggle.addEventListener('click', () => {
+                    applyDeckTheme(currentTheme === 'glass' ? 'matte' : 'glass', true);
+                });
+            }
+
+            function setActiveCategoryTab(index) {
+                activeCategoryIndex = index;
+                categoryTabs.forEach((tab, idx) => {
+                    const isSelected = idx === index;
+                    tab.classList.toggle('bg-white/15', isSelected);
+                    tab.classList.toggle('text-white', isSelected);
+                    tab.classList.toggle('font-semibold', isSelected);
+                    tab.classList.toggle('bg-white/[0.04]', !isSelected);
+                    tab.classList.toggle('text-gray-400', !isSelected);
+                });
+            }
+
+            try {
+                likedSongs = JSON.parse(localStorage.getItem('aethersonic_liked_songs') || '[]')
+                    .filter(s => s && s.title && (!s.duration || s.duration <= MAX_SONG_DURATION));
+            } catch (e) {
+                likedSongs = [];
+            }
+
+            function saveLikedSongs() {
+                try {
+                    localStorage.setItem('aethersonic_liked_songs', JSON.stringify(likedSongs));
+                } catch (e) {}
+                if (likedCountEl) likedCountEl.textContent = likedSongs.length;
+                updateCurrentLikeUI();
+            }
+
+            function getTrackKey(track) {
+                if (!track) return '';
+                if (track.trackId) return `id::${track.trackId}`;
+                return `${(track.title || '').trim().toLowerCase()}::${(track.singer || '').trim().toLowerCase()}`;
+            }
+
+            function isTrackLiked(track) {
+                if (!track) return false;
+                const key = getTrackKey(track);
+                const titleKey = `${(track.title || '').trim().toLowerCase()}::${(track.singer || '').trim().toLowerCase()}`;
+                return likedSongs.some(s => getTrackKey(s) === key || `${(s.title || '').trim().toLowerCase()}::${(s.singer || '').trim().toLowerCase()}` === titleKey);
+            }
+
+            function updateCurrentLikeUI() {
+                const track = playlist[currentIndex];
+                const liked = isTrackLiked(track);
+
+                if (likeCurrentIcon) {
+                    likeCurrentIcon.className = liked
+                        ? 'ph-fill ph-heart text-sm text-rose-500 pointer-events-none'
+                        : 'ph-fill ph-heart text-sm text-gray-300 pointer-events-none';
+                }
+                if (centerLikeIcon) {
+                    centerLikeIcon.className = liked
+                        ? 'ph-fill ph-heart text-lg text-rose-500 pointer-events-none'
+                        : 'ph-bold ph-heart text-lg opacity-60 pointer-events-none';
+                }
+                if (dockLikeIcon) {
+                    dockLikeIcon.className = liked
+                        ? 'ph-fill ph-heart text-base text-rose-500 pointer-events-none'
+                        : 'ph-bold ph-heart text-base text-gray-300 pointer-events-none';
+                }
+            }
+
+            window.toggleLikeTrack = function (idx, event) {
+                if (event) event.stopPropagation();
+                const track = playlist[idx];
+                if (!track) return;
+                const key = getTrackKey(track);
+                const titleKey = `${(track.title || '').trim().toLowerCase()}::${(track.singer || '').trim().toLowerCase()}`;
+                const existingIdx = likedSongs.findIndex(s => getTrackKey(s) === key || `${(s.title || '').trim().toLowerCase()}::${(s.singer || '').trim().toLowerCase()}` === titleKey);
+
+                if (existingIdx > -1) {
+                    likedSongs.splice(existingIdx, 1);
+                    showToast(`Removed "${track.title}" from Liked`);
+                    if (showingLikedOnly) {
+                        playlist = [...likedSongs];
+                        if (currentIndex >= playlist.length) currentIndex = Math.max(0, playlist.length - 1);
+                    }
+                } else {
+                    likedSongs.unshift({ ...track });
+                    showToast(`Added "${track.title}" to Liked ❤️`);
+                }
+                saveLikedSongs();
+                renderPlaylist();
+            };
+
+            function showToast(msg) {
+                if (!toastEl || !toastMsg) return;
+                toastMsg.textContent = msg;
+                toastEl.classList.remove('translate-y-20', 'opacity-0');
+                clearTimeout(toastTimer);
+                toastTimer = setTimeout(() => {
+                    toastEl.classList.add('translate-y-20', 'opacity-0');
+                }, 2400);
+            }
+
+            // HTML5 Audio Element
+            const audioEl = new Audio();
+            audioEl.preload = 'auto';
+            audioEl.volume = 0.85;
+
+            // Hidden YouTube Audio Player State
+            let ytPlayer = null;
+            let ytReady = false;
+            let ytPollTimer = null;
+
+            // Verified Healthy Audius Free Streaming Host Discovery
+            let audiusHost = 'https://discoveryprovider.audius.co';
+            let audiusCandidates = [
+                'https://discoveryprovider.audius.co',
+                'https://discoveryprovider2.audius.co',
+                'https://discoveryprovider3.audius.co'
+            ];
+            let hostResolvedOnce = false;
+
+            async function probeNodeHealth(nodeUrl) {
+                const controller = new AbortController();
+                const timer = setTimeout(() => controller.abort(), 1800);
+                try {
+                    const res = await fetch(`${nodeUrl}/health_check`, { signal: controller.signal });
+                    clearTimeout(timer);
+                    return res.ok;
+                } catch (e) {
+                    clearTimeout(timer);
+                    return false;
+                }
+            }
+
+            async function resolveAudiusHost(forceRefresh = false) {
+                if (hostResolvedOnce && !forceRefresh) return audiusHost;
+                try {
+                    if (forceRefresh || !hostResolvedOnce) {
+                        const controller = new AbortController();
+                        const timer = setTimeout(() => controller.abort(), 2500);
+                        const res = await fetch('https://api.audius.co', { signal: controller.signal });
+                        clearTimeout(timer);
+                        const json = await res.json();
+                        if (json && Array.isArray(json.data) && json.data.length > 0) {
+                            audiusCandidates = [...json.data].sort(() => Math.random() - 0.5);
+                        }
+                    }
+                    for (const candidate of audiusCandidates.slice(0, 3)) {
+                        if (await probeNodeHealth(candidate)) {
+                            audiusHost = candidate;
+                            hostResolvedOnce = true;
+                            return audiusHost;
+                        }
+                    }
+                } catch (e) {
+                    audiusHost = 'https://discoveryprovider.audius.co';
+                }
+                hostResolvedOnce = true;
+                return audiusHost;
+            }
+
+            function updateMediaSession(track) {
+                if (!('mediaSession' in navigator) || !track) return;
+                try {
+                    navigator.mediaSession.metadata = new MediaMetadata({
+                        title: track.title || 'Dilse Track',
+                        artist: `${track.singer || 'Artist'} - ${track.musicDirector || 'Music Director'}`,
+                        album: track.lang || 'Dilse Free HQ',
+                        artwork: track.artwork ? [{ src: track.artwork, sizes: '512x512', type: 'image/jpeg' }] : []
+                    });
+                    navigator.mediaSession.setActionHandler('play', () => togglePlayPause());
+                    navigator.mediaSession.setActionHandler('pause', () => togglePlayPause());
+                    navigator.mediaSession.setActionHandler('previoustrack', () => prevTrack());
+                    navigator.mediaSession.setActionHandler('nexttrack', () => nextTrack());
+                    navigator.mediaSession.setActionHandler('seekbackward', () => rewindTrack(10));
+                    navigator.mediaSession.setActionHandler('seekforward', () => fastForwardTrack(10));
+                } catch (e) {}
+            }
+
+            const curatedSouthHits = [
+                { title: 'Chuttamalle', singer: 'Shilpa Rao', musicDirector: 'Anirudh Ravichander', lang: 'Telugu', duration: 222 },
+                { title: 'Kissik', singer: 'Sublahshini', musicDirector: 'Devi Sri Prasad', lang: 'Telugu', duration: 248 },
+                { title: 'Fear Song', singer: 'Anirudh Ravichander', musicDirector: 'Anirudh Ravichander', lang: 'Telugu', duration: 196 },
+                { title: 'Manasilaayo', singer: 'Malaysia Vasudevan, Anirudh', musicDirector: 'Anirudh Ravichander', lang: 'Tamil', duration: 235 },
+                { title: 'Illuminati', singer: 'Dabzee', musicDirector: 'Sushin Shyam', lang: 'Malayalam', duration: 212 },
+                { title: 'Dwapara', singer: 'Jaskaran Singh', musicDirector: 'Arjun Janya', lang: 'Kannada', duration: 254 }
+            ];
+
+            const castDirectory = [
+                { match: /devara|chuttamalle|fear song|daavudi/i, director: 'Anirudh Ravichander' },
+                { match: /pushpa|kissik|sooseki|peelings|srivalli|oo antava/i, director: 'Devi Sri Prasad' },
+                { match: /kalki|bhairava/i, director: 'Santhosh Narayanan' },
+                { match: /guntur kaaram|kurchi|dum masala/i, director: 'Thaman S' },
+                { match: /rrr|naatu|komuram|dosti/i, director: 'M. M. Keeravani' },
+                { match: /salaar|sooreede/i, director: 'Ravi Basrur' },
+                { match: /vettaiyan|manasilaayo|hunter vantaar/i, director: 'Anirudh Ravichander' },
+                { match: /leo|naa ready|badass/i, director: 'Anirudh Ravichander' },
+                { match: /jailer|kaavaalaa|hukum/i, director: 'Anirudh Ravichander' },
+                { match: /aavesham|illuminati|jaada/i, director: 'Sushin Shyam' },
+                { match: /kantara|varaha roopam/i, director: 'B. Ajaneesh Loknath' },
+                { match: /kgf|toofan|sulthana/i, director: 'Ravi Basrur' },
+                { match: /krishnam pranaya|dwapara/i, director: 'Arjun Janya' }
+            ];
+
+            function enrichTrackMetadata(item, fallbackLang) {
+                const rawTitle = item.trackName || item.title || 'Unknown Track';
+                const rawArtists = item.artistName || 'South India Artist';
+                const artistParts = rawArtists.split(',').map(s => s.trim()).filter(Boolean);
+                const matched = castDirectory.find(entry => entry.match.test(`${rawTitle} ${rawArtists}`));
+                const musicDirector = matched ? matched.director : (artistParts.length > 1 ? artistParts[artistParts.length - 1] : artistParts[0]);
+                const singer = artistParts.length > 1 ? artistParts.slice(0, -1).join(', ') : artistParts[0];
+                return { title: rawTitle, singer, musicDirector };
+            }
+
+            function formatTime(sec) {
+                if (!sec || isNaN(sec) || sec < 0) return '0:00';
+                const m = Math.floor(sec / 60);
+                const s = Math.floor(sec % 60);
+                return `${m}:${String(s).padStart(2, '0')}`;
+            }
+
+            // --- Dual YouTube IFrame API Integration (Audio Player + Cinema Video Player) ---
+            window.onYouTubeIframeAPIReady = function () {
+                ytPlayer = new YT.Player('yt-player-host', {
+                    height: '64',
+                    width: '64',
+                    playerVars: { autoplay: 0, controls: 0, disablekb: 1, fs: 0, modestbranding: 1, playsinline: 1, rel: 0 },
+                    events: {
+                        onReady: () => { ytReady = true; },
+                        onStateChange: (event) => {
+                            if (event.data === YT.PlayerState.PLAYING) {
+                                setPlayingState(true);
+                                startYtProgressPoll();
+                            } else if (event.data === YT.PlayerState.PAUSED) {
+                                setPlayingState(false);
+                                stopYtProgressPoll();
+                            } else if (event.data === YT.PlayerState.ENDED) {
+                                stopYtProgressPoll();
+                                if (isRepeat) {
+                                    ytPlayer.seekTo(0);
+                                    ytPlayer.playVideo();
+                                } else {
+                                    nextTrack();
+                                }
+                            }
+                        },
+                        onError: () => {
+                            const track = playlist[currentIndex];
+                            if (track && track.type === 'youtube') {
+                                fallbackToDirectStream(track);
+                            }
+                        }
+                    }
+                });
+
+                cinemaYtPlayer = new YT.Player('cinema-yt-player', {
+                    height: '100%',
+                    width: '100%',
+                    playerVars: { autoplay: 0, controls: 0, disablekb: 1, fs: 0, modestbranding: 1, playsinline: 1, rel: 0 },
+                    events: {
+                        onReady: () => { cinemaYtReady = true; },
+                        onStateChange: (event) => {
+                            if (event.data === YT.PlayerState.PLAYING) {
+                                setCinemaPlayingState(true);
+                                startCinemaProgressPoll();
+                            } else if (event.data === YT.PlayerState.PAUSED) {
+                                setCinemaPlayingState(false);
+                                stopCinemaProgressPoll();
+                            } else if (event.data === YT.PlayerState.ENDED) {
+                                setCinemaPlayingState(false);
+                                stopCinemaProgressPoll();
+                            }
+                        },
+                        onError: () => {
+                            showToast('This video restricts embed playback. Try another video!');
+                        }
+                    }
+                });
+            };
+
+            function setCinemaPlayingState(playing) {
+                cinemaVideoPlaying = playing;
+                if (vidPlayIcon) vidPlayIcon.className = playing ? 'ph-fill ph-pause text-base pointer-events-none' : 'ph-fill ph-play text-base pointer-events-none';
+                if (fsPlayIcon) fsPlayIcon.className = playing ? 'ph-fill ph-pause text-base pointer-events-none' : 'ph-fill ph-play text-base pointer-events-none';
+            }
+
+            function startCinemaProgressPoll() {
+                stopCinemaProgressPoll();
+                cinemaPollTimer = setInterval(() => {
+                    if (cinemaYtPlayer && cinemaYtReady && typeof cinemaYtPlayer.getCurrentTime === 'function') {
+                        const cur = cinemaYtPlayer.getCurrentTime() || 0;
+                        const dur = cinemaYtPlayer.getDuration() || 0;
+                        if (vidCurrentTime) vidCurrentTime.textContent = formatTime(cur);
+                        if (vidDurationTime) vidDurationTime.textContent = formatTime(dur);
+                        if (vidProgressBar && dur > 0) {
+                            vidProgressBar.style.width = `${Math.min(100, (cur / dur) * 100)}%`;
+                        }
+                    }
+                }, 400);
+            }
+
+            function stopCinemaProgressPoll() {
+                if (cinemaPollTimer) {
+                    clearInterval(cinemaPollTimer);
+                    cinemaPollTimer = null;
+                }
+            }
+
+            function setCinemaOrientation(mode) {
+                cinemaOrientation = mode === 'v' ? 'v' : 'h';
+                if (!videoFrameWrapper || !btnOrientH || !btnOrientV || !videoOrientationLabel) return;
+
+                if (cinemaOrientation === 'v') {
+                    videoFrameWrapper.classList.remove('w-full', 'aspect-video');
+                    videoFrameWrapper.classList.add('w-[195px]', 'sm:w-[210px]', 'aspect-[9/16]');
+                    btnOrientV.className = 'px-2 py-1 rounded-full bg-white/15 text-white text-[9px] font-mono font-semibold transition';
+                    btnOrientH.className = 'px-2 py-1 rounded-full text-gray-400 hover:text-white text-[9px] font-mono font-semibold transition';
+                    videoOrientationLabel.textContent = 'VERTICAL • 9:16';
+                } else {
+                    videoFrameWrapper.classList.remove('w-[195px]', 'sm:w-[210px]', 'aspect-[9/16]');
+                    videoFrameWrapper.classList.add('w-full', 'aspect-video');
+                    btnOrientH.className = 'px-2 py-1 rounded-full bg-white/15 text-white text-[9px] font-mono font-semibold transition';
+                    btnOrientV.className = 'px-2 py-1 rounded-full text-gray-400 hover:text-white text-[9px] font-mono font-semibold transition';
+                    videoOrientationLabel.textContent = 'HORIZONTAL • 16:9';
+                }
+            }
+
+            function playVideoInCinemaDeck(videoId, title = 'YouTube Video', sub = 'YOUTUBE CINEMA', autoPlay = true) {
+                if (!videoId) return;
+                currentCinemaMode = 'youtube';
+                currentCinemaVideoId = videoId;
+                currentCinemaLocalTrack = null;
+                currentCinemaTitle = title;
+
+                // Pause & hide Local Video if active
+                if (cinemaLocalVideo) {
+                    cinemaLocalVideo.pause();
+                    cinemaLocalVideo.classList.add('hidden');
+                }
+                const ytEl = document.getElementById('cinema-yt-player');
+                if (ytEl) ytEl.classList.remove('hidden');
+
+                // Pause Audio Deck so video and audio do not overlap
+                audioEl.pause();
+                stopYtProgressPoll();
+                if (ytPlayer && ytReady && typeof ytPlayer.pauseVideo === 'function') {
+                    ytPlayer.pauseVideo();
+                }
+                setPlayingState(false);
+
+                if (videoEmptyState) videoEmptyState.classList.add('hidden');
+                if (videoNowTitle) videoNowTitle.textContent = title;
+                if (videoNowSub) videoNowSub.textContent = sub;
+                if (cinemaFsTitle) cinemaFsTitle.textContent = title;
+
+                if (cinemaYtPlayer && cinemaYtReady && typeof cinemaYtPlayer.loadVideoById === 'function') {
+                    if (autoPlay) {
+                        cinemaYtPlayer.loadVideoById(videoId);
+                        setCinemaPlayingState(true);
+                    } else {
+                        cinemaYtPlayer.cueVideoById(videoId);
+                        setCinemaPlayingState(false);
+                    }
+                } else {
+                    showToast('Video engine initializing, tap Play in a moment');
+                }
+            }
+
+            function playLocalVideoInCinemaDeck(localTrack, autoPlay = true) {
+                if (!localTrack || !localTrack.url || !cinemaLocalVideo) return;
+                currentCinemaMode = 'local';
+                currentCinemaLocalTrack = localTrack;
+                currentCinemaVideoId = null;
+                currentCinemaTitle = localTrack.title;
+
+                // Pause YouTube video & Audio Deck
+                if (cinemaYtPlayer && cinemaYtReady && typeof cinemaYtPlayer.pauseVideo === 'function') {
+                    cinemaYtPlayer.pauseVideo();
+                }
+                stopCinemaProgressPoll();
+                const ytEl = document.getElementById('cinema-yt-player');
+                if (ytEl) ytEl.classList.add('hidden');
+
+                audioEl.pause();
+                stopYtProgressPoll();
+                if (ytPlayer && ytReady && typeof ytPlayer.pauseVideo === 'function') {
+                    ytPlayer.pauseVideo();
+                }
+                setPlayingState(false);
+
+                if (videoEmptyState) videoEmptyState.classList.add('hidden');
+                cinemaLocalVideo.classList.remove('hidden');
+                cinemaLocalVideo.src = localTrack.url;
+                cinemaLocalVideo.muted = cinemaVideoMuted;
+
+                if (videoNowTitle) videoNowTitle.textContent = localTrack.title;
+                if (videoNowSub) videoNowSub.textContent = `LOCAL VIDEO • ${localTrack.fileSize || 'DEVICE FILE'}`;
+                if (cinemaFsTitle) cinemaFsTitle.textContent = localTrack.title;
+
+                if (autoPlay) {
+                    cinemaLocalVideo.play().then(() => setCinemaPlayingState(true)).catch(() => setCinemaPlayingState(false));
+                } else {
+                    setCinemaPlayingState(false);
+                }
+            }
+
+            function openCinemaFullscreen() {
+                if (!cinemaFsOverlay || !cinemaFsMount || !cinemaEmbedMount) return;
+                const activeMediaEl = currentCinemaMode === 'local'
+                    ? cinemaLocalVideo
+                    : document.getElementById('cinema-yt-player');
+                if (activeMediaEl) {
+                    cinemaFsMount.appendChild(activeMediaEl);
+                }
+                cinemaFsOverlay.classList.remove('hidden');
+                cinemaFsOverlay.classList.add('flex');
+                isCinemaFullscreen = true;
+
+                // Auto-rotate to landscape on portrait mobile viewports
+                const shouldRotate = window.innerHeight > window.innerWidth && cinemaOrientation === 'h';
+                isFsRotated = shouldRotate;
+                if (cinemaFsStage) {
+                    cinemaFsStage.classList.toggle('cinema-rotated-landscape', isFsRotated);
+                }
+            }
+
+            function closeCinemaFullscreen() {
+                if (!cinemaFsOverlay || !cinemaEmbedMount) return;
+                const activeMediaEl = currentCinemaMode === 'local'
+                    ? cinemaLocalVideo
+                    : document.getElementById('cinema-yt-player');
+                if (activeMediaEl) {
+                    cinemaEmbedMount.prepend(activeMediaEl);
+                }
+                if (cinemaFsStage) {
+                    cinemaFsStage.classList.remove('cinema-rotated-landscape');
+                }
+                cinemaFsOverlay.classList.add('hidden');
+                cinemaFsOverlay.classList.remove('flex');
+                isCinemaFullscreen = false;
+                isFsRotated = false;
+            }
+
+            function startYtProgressPoll() {
+                stopYtProgressPoll();
+                ytPollTimer = setInterval(() => {
+                    if (ytPlayer && ytReady && typeof ytPlayer.getCurrentTime === 'function') {
+                        const cur = ytPlayer.getCurrentTime() || 0;
+                        const dur = ytPlayer.getDuration() || 210;
+                        const rem = Math.max(0, dur - cur);
+                        currentTimeEl.textContent = formatTime(cur);
+                        durationTimeEl.textContent = `-${formatTime(rem)}`;
+                        progressBar.style.width = `${Math.min(100, (cur / dur) * 100)}%`;
+                    }
+                }, 400);
+            }
+
+            function stopYtProgressPoll() {
+                if (ytPollTimer) {
+                    clearInterval(ytPollTimer);
+                    ytPollTimer = null;
+                }
+            }
+
+            async function fallbackToDirectStream(track) {
+                try {
+                    const res = await fetch(`https://itunes.apple.com/search?term=${encodeURIComponent(track.title)}&media=music&entity=song&country=IN&limit=1`);
+                    const data = await res.json();
+                    if (data.results && data.results.length > 0 && data.results[0].previewUrl) {
+                        track.type = 'stream';
+                        track.url = data.results[0].previewUrl;
+                        track.artwork = data.results[0].artworkUrl100.replace('100x100bb', '600x600bb');
+                        loadTrack(currentIndex, true);
+                        return;
+                    }
+                } catch (e) {}
+                nextTrack();
+            }
+
+            // --- Search Songs Directly ---
+            async function fetchYouTubeSearchItems(cleanQuery, suffix = 'full song') {
+                const fullQuery = suffix ? `${cleanQuery} ${suffix}` : cleanQuery;
+                const searchEndpoints = [
+                    `https://pipedapi.kavin.rocks/search?q=${encodeURIComponent(fullQuery)}&filter=music_songs`,
+                    `https://pipedapi.adminforge.de/search?q=${encodeURIComponent(fullQuery)}&filter=videos`,
+                    `https://inv.nadeko.net/api/v1/search?q=${encodeURIComponent(fullQuery)}&type=video`,
+                    `https://invidious.nerdvpn.de/api/v1/search?q=${encodeURIComponent(fullQuery)}&type=video`
+                ];
+
+                for (const url of searchEndpoints) {
+                    try {
+                        const controller = new AbortController();
+                        const timer = setTimeout(() => controller.abort(), 4500);
+                        const res = await fetch(url, { signal: controller.signal });
+                        clearTimeout(timer);
+                        if (!res.ok) continue;
+                        const data = await res.json();
+
+                        const rawItems = Array.isArray(data) ? data : (Array.isArray(data.items) ? data.items : []);
+                        const parsed = rawItems.map(item => {
+                            const vidId = item.videoId || (item.url ? extractYouTubeId(item.url) : null);
+                            const dur = Number(item.duration || item.lengthSeconds || 0);
+                            if (!vidId || (dur > 0 && (dur < 45 || dur > MAX_SONG_DURATION))) return null;
+                            const artist = item.uploaderName || item.author || 'YouTube Music';
+                            const thumb = item.thumbnail || (Array.isArray(item.videoThumbnails) && item.videoThumbnails[0] ? item.videoThumbnails[0].url : `https://i.ytimg.com/vi/${vidId}/hqdefault.jpg`);
+                            return {
+                                title: item.title || cleanQuery,
+                                singer: artist,
+                                musicDirector: 'YouTube Audio',
+                                lang: 'YouTube',
+                                duration: dur || 240,
+                                type: 'youtube',
+                                videoId: vidId,
+                                artwork: thumb
+                            };
+                        }).filter(Boolean);
+
+                        if (parsed.length > 0) {
+                            return parsed;
+                        }
+                    } catch (e) {}
+                }
+                return [];
+            }
+
+            async function searchYouTubeSongs(query) {
+                const cleanQuery = query.trim();
+                if (!cleanQuery) return;
+                showingLikedOnly = false;
+                modeIndicator.textContent = `SEARCHING: ${cleanQuery.toUpperCase()}`;
+
+                const directId = extractYouTubeId(cleanQuery);
+                if (directId) {
+                    playlist = [{
+                        title: `YouTube Track (${directId})`,
+                        singer: 'YouTube Stream',
+                        musicDirector: 'YouTube Audio',
+                        lang: 'YouTube',
+                        duration: 240,
+                        type: 'youtube',
+                        videoId: directId,
+                        artwork: `https://i.ytimg.com/vi/${directId}/hqdefault.jpg`
+                    }];
+                    modeIndicator.textContent = 'YOUTUBE AUDIO (1)';
+                    queueHeaderLabel.textContent = 'YOUTUBE AUDIO • DIRECT';
+                    loadTrack(0, true);
+                    showToast('Playing YouTube Audio');
+                    return;
+                }
+
+                let ytResults = await fetchYouTubeSearchItems(cleanQuery, 'full song');
+
+                if (ytResults.length === 0) {
+                    await resolveAudiusHost();
+                    try {
+                        const audiusRes = await fetch(`${audiusHost}/v1/tracks/search?query=${encodeURIComponent(cleanQuery)}&limit=50&app_name=Dilse`);
+                        const audiusData = await audiusRes.json();
+                        if (audiusData && Array.isArray(audiusData.data)) {
+                            ytResults = audiusData.data
+                                .filter(item => item && item.id && !item.is_stream_gated && item.duration >= 120 && item.duration <= MAX_SONG_DURATION)
+                                .map(item => ({
+                                    title: item.title,
+                                    singer: (item.user && item.user.name) ? item.user.name : 'Artist',
+                                    musicDirector: item.genre || 'Full Track',
+                                    lang: 'Free HQ',
+                                    duration: item.duration,
+                                    type: 'stream',
+                                    trackId: item.id,
+                                    url: `${audiusHost}/v1/tracks/${item.id}/stream?app_name=Dilse`,
+                                    artwork: (item.artwork && (item.artwork['480x480'] || item.artwork['150x150'])) || `https://placehold.co/600x600/18191B/E5E7EB?text=${encodeURIComponent(item.title)}`
+                                }));
+                        }
+                    } catch (e) {}
+                }
+
+                if (ytResults.length > 0) {
+                    playlist = ytResults;
+                    modeIndicator.textContent = `"${cleanQuery.toUpperCase()}" (${playlist.length})`;
+                    queueHeaderLabel.textContent = `SEARCH • ${cleanQuery.toUpperCase()}`;
+                    loadTrack(0, true);
+                    showToast(`Playing "${playlist[0].title}"`);
+                } else {
+                    modeIndicator.textContent = 'NO RESULTS FOUND';
+                    showToast(`No songs found for "${cleanQuery}"`);
+                }
+            }
+
+            // UI State Updaters
+            function setPlayingState(playing) {
+                isPlaying = playing;
+                if (playIcon) playIcon.className = playing ? 'ph-fill ph-pause text-lg pointer-events-none' : 'ph-fill ph-play text-lg pointer-events-none';
+                if (dockPlayIcon) dockPlayIcon.className = playing ? 'ph-fill ph-pause text-base pointer-events-none' : 'ph-fill ph-play text-base pointer-events-none';
+                if (modalPlayIcon) modalPlayIcon.className = playing ? 'ph-fill ph-pause text-sm pointer-events-none' : 'ph-fill ph-play text-sm pointer-events-none';
+                if (modalPlayLabel) modalPlayLabel.textContent = playing ? 'Pause' : 'Play';
+                if (screenPlayerEl) screenPlayerEl.classList.toggle('rgb-art-playing', playing);
+                if (screenQueueEl) screenQueueEl.classList.toggle('rgb-art-playing', playing);
+                if ('mediaSession' in navigator) {
+                    navigator.mediaSession.playbackState = playing ? 'playing' : 'paused';
+                }
+                if (trackStatus) trackStatus.textContent = playing ? 'PLAYING' : 'PAUSED';
+                renderPlaylist();
+            }
+
+            function renderPlaylist() {
+                queueCountEl.textContent = `${playlist.length}`;
+                if (likedCountEl) likedCountEl.textContent = likedSongs.length;
+                if (playlist.length === 0) {
+                    playlistEl.innerHTML = `<li class="py-12 text-center text-xs text-gray-500">${showingLikedOnly ? 'No liked songs yet. Tap ❤️ on any song!' : 'Loading tracks...'}</li>`;
+                    return;
+                }
+                playlistEl.innerHTML = playlist.map((track, idx) => {
+                    const active = idx === currentIndex;
+                    const liked = isTrackLiked(track);
+                    const singerDirectorText = track.type === 'fm'
+                        ? `${track.freq || 'FM'} • ${track.city || 'Live Radio'}`
+                        : `${track.singer || 'Artist'} - ${track.musicDirector || 'Music Director'}`;
+                    return `
+                        <li onclick="window.selectTrack(${idx})"
+                            class="group flex items-center justify-between px-3 py-2.5 rounded-xl cursor-pointer transition ${active ? 'active-track-slot text-white' : 'hover:bg-white/[0.04] text-gray-300 border border-transparent'}">
+                            <div class="flex items-center gap-3.5 min-w-0">
+                                <span class="text-[11px] font-mono w-5 text-center shrink-0 ${active ? 'text-white font-semibold' : 'text-gray-500'}">
+                                    ${active && isPlaying ? `
+                                        <span class="inline-flex items-end gap-0.5 h-3">
+                                            <span class="w-0.5 bg-white eq-bar"></span>
+                                            <span class="w-0.5 bg-white eq-bar"></span>
+                                            <span class="w-0.5 bg-white eq-bar"></span>
+                                        </span>
+                                    ` : (idx + 1)}
+                                </span>
+                                <div class="min-w-0">
+                                    <p class="text-xs font-medium truncate ${active ? 'text-white' : 'text-gray-200 group-hover:text-white'}">${track.title}</p>
+                                    <p class="text-[10px] text-gray-500 truncate mt-0.5">${singerDirectorText}</p>
+                                </div>
+                            </div>
+                            <div class="flex items-center gap-1.5 shrink-0 ml-2">
+                                <button type="button" onclick="window.toggleLikeTrack(${idx}, event)" title="${liked ? 'Unlike' : 'Like'}"
+                                        class="p-1.5 rounded-full hover:bg-white/10 transition ${liked ? 'text-rose-500' : 'text-gray-500 opacity-75 group-hover:opacity-100 hover:text-rose-400'}">
+                                    <i class="${liked ? 'ph-fill' : 'ph-bold'} ph-heart text-sm pointer-events-none"></i>
+                                </button>
+                            </div>
+                        </li>
+                    `;
+                }).join('');
+            }
+
+            window.selectTrack = function (idx) {
+                loadTrack(idx, true);
+            };
+
+            async function loadTrack(idx, autoPlay = false) {
+                if (idx < 0 || idx >= playlist.length) return;
+                currentIndex = idx;
+                const track = playlist[currentIndex];
+
+                audioEl.pause();
+                stopYtProgressPoll();
+                if (ytPlayer && ytReady && typeof ytPlayer.stopVideo === 'function') {
+                    ytPlayer.stopVideo();
+                }
+
+                // Pause Cinema Video Player if Audio Deck starts
+                if (autoPlay && cinemaYtPlayer && cinemaYtReady && typeof cinemaYtPlayer.pauseVideo === 'function') {
+                    cinemaYtPlayer.pauseVideo();
+                    setCinemaPlayingState(false);
+                }
+
+                const isFm = track.type === 'fm';
+                if (fmLiveBadge) fmLiveBadge.classList.toggle('hidden', !isFm);
+                if (fmTunerBox) fmTunerBox.classList.toggle('hidden', !isFm);
+                if (isFm && fmTunerFreq) {
+                    const freqNum = parseFloat(track.freq) || 98.3;
+                    fmTunerFreq.textContent = `${freqNum.toFixed(1)} MHz`;
+                    if (fmTunerNeedle) {
+                        const pct = Math.max(4, Math.min(96, ((freqNum - 88) / 20) * 100));
+                        fmTunerNeedle.style.left = `${pct}%`;
+                    }
+                }
+
+                trackTitle.textContent = track.title;
+                dockTrackTitle.textContent = track.title;
+                trackSingerDirector.textContent = isFm
+                    ? `${track.freq || 'LIVE FM'} • ${track.city || 'India FM Radio'}`
+                    : `${track.singer || 'Artist'} - ${track.musicDirector || 'Music Director'}`;
+                currentTimeEl.textContent = isFm ? 'LIVE' : '0:00';
+                durationTimeEl.textContent = isFm ? 'ON AIR' : (track.duration ? `-${formatTime(track.duration)}` : '-0:00');
+                progressBar.style.width = isFm ? '100%' : '0%';
+
+                if (track.artwork) {
+                    coverArt.style.display = 'block';
+                    coverArt.src = track.artwork;
+                    miniCoverArt.style.display = 'block';
+                    miniCoverArt.src = track.artwork;
+                    dockCoverArt.src = track.artwork;
+                } else {
+                    coverArt.style.display = 'none';
+                    miniCoverArt.style.display = 'none';
+                }
+
+                updateMediaSession(track);
+                updateCurrentLikeUI();
+                renderPlaylist();
+
+                if (autoPlay) {
+                    await playCurrentTrack();
+                } else {
+                    setPlayingState(false);
+                }
+            }
+
+            async function resolveFullSongStream(track) {
+                await resolveAudiusHost();
+                const searchTerm = `${track.title} ${track.singer || ''}`.trim();
+                try {
+                    const audiusRes = await fetch(`${audiusHost}/v1/tracks/search?query=${encodeURIComponent(searchTerm)}&app_name=Dilse`);
+                    const audiusData = await audiusRes.json();
+                    if (audiusData && audiusData.data && audiusData.data.length > 0) {
+                        const fullMatch = audiusData.data.find(t => !t.is_stream_gated && t.duration && t.duration >= 120 && t.duration <= MAX_SONG_DURATION)
+                            || audiusData.data.find(t => !t.is_stream_gated && (!t.duration || t.duration <= MAX_SONG_DURATION));
+                        if (fullMatch && fullMatch.id) {
+                            track.trackId = fullMatch.id;
+                            track.url = `${audiusHost}/v1/tracks/${fullMatch.id}/stream?app_name=Dilse`;
+                            track.duration = fullMatch.duration || track.duration;
+                            if (!track.artwork && fullMatch.artwork && fullMatch.artwork['480x480']) {
+                                track.artwork = fullMatch.artwork['480x480'];
+                            }
+                            return true;
+                        }
+                    }
+                } catch (e) {}
+                return false;
+            }
+
+            async function playCurrentTrack() {
+                const track = playlist[currentIndex];
+                if (!track) {
+                    showToast('Loading songs, please wait...');
+                    return;
+                }
+
+                if (track.type === 'youtube' && track.videoId) {
+                    if (ytPlayer && ytReady && typeof ytPlayer.loadVideoById === 'function') {
+                        ytPlayer.unMute();
+                        ytPlayer.setVolume(Math.round(audioEl.volume * 100));
+                        ytPlayer.loadVideoById(track.videoId);
+                        setPlayingState(true);
+                    } else {
+                        await fallbackToDirectStream(track);
+                    }
+                    return;
+                }
+
+                if (!track.url) {
+                    await resolveFullSongStream(track);
+                    if (track.artwork) {
+                        coverArt.style.display = 'block';
+                        coverArt.src = track.artwork;
+                        miniCoverArt.style.display = 'block';
+                        miniCoverArt.src = track.artwork;
+                        dockCoverArt.src = track.artwork;
+                    }
+                }
+
+                if (track.url) {
+                    if (audioEl.src !== track.url) {
+                        audioEl.src = track.url;
+                    }
+                    try {
+                        await audioEl.play();
+                        setPlayingState(true);
+                    } catch (err) {
+                        setPlayingState(false);
+                        showToast('Tap Play again to start audio');
+                    }
+                } else {
+                    nextTrack();
+                }
+            }
+
+            function nextTrack() {
+                if (playlist.length === 0) return;
+                if (isShuffle && playlist.length > 1) {
+                    let nextIdx = currentIndex;
+                    while (nextIdx === currentIndex) {
+                        nextIdx = Math.floor(Math.random() * playlist.length);
+                    }
+                    loadTrack(nextIdx, true);
+                } else {
+                    const nextIdx = (currentIndex + 1) % playlist.length;
+                    loadTrack(nextIdx, true);
+                }
+            }
+
+            function prevTrack() {
+                if (playlist.length === 0) return;
+                if (audioEl.currentTime > 4) {
+                    audioEl.currentTime = 0;
+                    return;
+                }
+                const prevIdx = (currentIndex - 1 + playlist.length) % playlist.length;
+                loadTrack(prevIdx, true);
+            }
+
+            function togglePlayPause() {
+                if (playlist.length === 0) {
+                    loadSouthIndiaTop150();
+                    return;
+                }
+                const track = playlist[currentIndex];
+                if (!track) return;
+
+                if (track.type === 'youtube' && ytPlayer && ytReady) {
+                    if (isPlaying) {
+                        ytPlayer.pauseVideo();
+                        setPlayingState(false);
+                    } else {
+                        const state = typeof ytPlayer.getPlayerState === 'function' ? ytPlayer.getPlayerState() : -1;
+                        if (state === YT.PlayerState.PAUSED || state === YT.PlayerState.CUED) {
+                            ytPlayer.playVideo();
+                            setPlayingState(true);
+                        } else {
+                            playCurrentTrack();
+                        }
+                    }
+                } else {
+                    if (isPlaying) {
+                        audioEl.pause();
+                        setPlayingState(false);
+                    } else if (audioEl.src && audioEl.readyState >= 2) {
+                        audioEl.play().then(() => setPlayingState(true)).catch(() => playCurrentTrack());
+                    } else {
+                        playCurrentTrack();
+                    }
+                }
+            }
+
+            function rewindTrack(seconds = 10) {
+                const track = playlist[currentIndex];
+                if (!track || track.type === 'fm') return;
+                if (track.type === 'youtube' && ytPlayer && ytReady && typeof ytPlayer.getCurrentTime === 'function') {
+                    const newTime = Math.max(0, (ytPlayer.getCurrentTime() || 0) - seconds);
+                    ytPlayer.seekTo(newTime, true);
+                    showToast(`Rewind -${seconds}s`);
+                } else if (audioEl.duration && !isNaN(audioEl.duration)) {
+                    audioEl.currentTime = Math.max(0, audioEl.currentTime - seconds);
+                    showToast(`Rewind -${seconds}s`);
+                }
+            }
+
+            function fastForwardTrack(seconds = 10) {
+                const track = playlist[currentIndex];
+                if (!track || track.type === 'fm') return;
+                if (track.type === 'youtube' && ytPlayer && ytReady && typeof ytPlayer.getCurrentTime === 'function') {
+                    const dur = ytPlayer.getDuration() || track.duration || 210;
+                    const newTime = Math.min(dur, (ytPlayer.getCurrentTime() || 0) + seconds);
+                    ytPlayer.seekTo(newTime, true);
+                    showToast(`Fast Forward +${seconds}s`);
+                } else if (audioEl.duration && !isNaN(audioEl.duration)) {
+                    audioEl.currentTime = Math.min(audioEl.duration, audioEl.currentTime + seconds);
+                    showToast(`Fast Forward +${seconds}s`);
+                }
+            }
+
+            // --- Fetch All Available Free Complete Full-Length Songs ---
+            async function fetchAllFullLengthTracks(queriesList, badgeLabel = 'FREE') {
+                await resolveAudiusHost();
+                const seenIds = new Set();
+                const allFullTracks = [];
+
+                const requests = queriesList.map(q =>
+                    fetch(`${audiusHost}/v1/tracks/search?query=${encodeURIComponent(q.term)}&limit=100&app_name=Dilse`)
+                        .then(r => r.json())
+                        .then(data => ({ lang: q.lang, items: (data && data.data) ? data.data : [] }))
+                        .catch(() => ({ lang: q.lang, items: [] }))
+                );
+
+                const groups = await Promise.all(requests);
+                const maxLen = Math.max(0, ...groups.map(g => g.items.length));
+
+                for (let i = 0; i < maxLen; i++) {
+                    for (const group of groups) {
+                        const item = group.items[i];
+                        const isFreeStreamable = item && item.id && !item.is_stream_gated && item.duration && item.duration >= 120 && item.duration <= MAX_SONG_DURATION;
+                        if (isFreeStreamable && !seenIds.has(item.id)) {
+                            seenIds.add(item.id);
+                            const userName = (item.user && item.user.name) ? item.user.name : 'Independent Artist';
+                            const meta = enrichTrackMetadata({
+                                trackName: item.title,
+                                collectionName: item.genre || group.lang,
+                                artistName: userName
+                            }, group.lang);
+
+                            const art = item.artwork
+                                ? (item.artwork['480x480'] || item.artwork['1000x1000'] || item.artwork['150x150'] || '')
+                                : '';
+
+                            allFullTracks.push({
+                                ...meta,
+                                lang: group.lang || badgeLabel,
+                                duration: item.duration,
+                                type: 'stream',
+                                trackId: item.id,
+                                url: `${audiusHost}/v1/tracks/${item.id}/stream?app_name=Dilse`,
+                                artwork: art || `https://placehold.co/600x600/18191B/E5E7EB?text=${encodeURIComponent(item.title)}`
+                            });
+                        }
+                    }
+                }
+                return allFullTracks;
+            }
+
+            async function loadSouthIndiaTop150() {
+                showingLikedOnly = false;
+                setActiveCategoryTab(0);
+                modeIndicator.textContent = 'LOADING FREE SONGS...';
+                queueHeaderLabel.textContent = 'DILSE • ALL FREE SONGS';
+
+                const queries = [
+                    { term: 'Telugu', lang: 'Telugu' },
+                    { term: 'Tollywood', lang: 'Telugu' },
+                    { term: 'Tamil', lang: 'Tamil' },
+                    { term: 'Kollywood', lang: 'Tamil' },
+                    { term: 'Anirudh', lang: 'Tamil' },
+                    { term: 'Kannada', lang: 'Kannada' },
+                    { term: 'Sandalwood', lang: 'Kannada' },
+                    { term: 'Malayalam', lang: 'Malayalam' },
+                    { term: 'Mollywood', lang: 'Malayalam' },
+                    { term: 'Indian Remix', lang: 'South' }
+                ];
+
+                try {
+                    const fullSongs = await fetchAllFullLengthTracks(queries, 'FREE');
+                    if (fullSongs.length > 0) {
+                        playlist = fullSongs;
+                        modeIndicator.textContent = `${playlist.length} FREE FULL SONGS`;
+                        loadTrack(0, false);
+                    } else {
+                        playlist = curatedSouthHits.map(item => ({
+                            ...item,
+                            type: 'stream',
+                            url: '',
+                            artwork: `https://placehold.co/600x600/18191B/E5E7EB?text=${encodeURIComponent(item.title)}`
+                        }));
+                        modeIndicator.textContent = `FREE SONGS (${playlist.length})`;
+                        loadTrack(0, false);
+                    }
+                } catch (err) {
+                    modeIndicator.textContent = 'FREE FULL SONGS';
+                }
+            }
+
+            // --- Live FM Radio Catalog & Tuner ---
+            const fmStationsCatalog = [
+                { title: 'Radio Mirchi 98.3 FM', freq: '98.3 MHz', city: 'Hyderabad / Mumbai', lang: 'FM', url: 'https://eu8.fastcast4u.com/proxy/clyedupq?mp=/1' },
+                { title: 'Hello FM 106.4', freq: '106.4 MHz', city: 'Chennai • Tamil', lang: 'FM', url: 'https://strw3.openstream.co/1487' },
+                { title: 'Radio City 91.1 FM', freq: '91.1 MHz', city: 'Bengaluru / South', lang: 'FM', url: 'https://prclond1.listenon.in/radiocityhindi' },
+                { title: 'Club FM 94.3', freq: '94.3 MHz', city: 'Kochi • Malayalam', lang: 'FM', url: 'https://eu10.fastcast4u.com/clubfmuae' },
+                { title: 'AIR Vividh Bharati', freq: '102.8 MHz', city: 'All India Radio', lang: 'FM', url: 'https://air.pc.cdn.bitgravity.com/air/live/pbaudio001/playlist.m3u8' },
+                { title: 'Big FM 92.7', freq: '92.7 MHz', city: 'Hyderabad • Telugu', lang: 'FM', url: 'https://stream.zeno.fm/r2gn10wsd4zuv' },
+                { title: 'Suryan FM 93.5', freq: '93.5 MHz', city: 'Chennai • Tamil', lang: 'FM', url: 'https://radios.crabdance.com:8002/2' },
+                { title: 'Radio Mango 91.9', freq: '91.9 MHz', city: 'Calicut • Malayalam', lang: 'FM', url: 'https://stream.zeno.fm/66v7776884zuv' }
+            ];
+
+            async function loadFmStations(autoPlayFirst = true) {
+                showingLikedOnly = false;
+                setActiveCategoryTab(2);
+                modeIndicator.textContent = 'LIVE FM RADIO';
+                queueHeaderLabel.textContent = 'DILSE • LIVE FM RADIO';
+
+                const baseStations = fmStationsCatalog.map(st => ({
+                    title: st.title,
+                    singer: st.city,
+                    musicDirector: st.freq,
+                    freq: st.freq,
+                    city: st.city,
+                    lang: 'FM',
+                    duration: 0,
+                    type: 'fm',
+                    url: st.url,
+                    artwork: `https://placehold.co/600x600/18191B/34D399?text=${encodeURIComponent(st.freq)}`
+                }));
+
+                playlist = baseStations;
+                loadTrack(0, autoPlayFirst);
+                showToast('Tuned to Live FM Radio 📻');
+
+                try {
+                    const res = await fetch('https://de1.api.radio-browser.info/json/stations/bycountrycodeexact/IN?limit=35&order=clickcount&reverse=true&hidebroken=true');
+                    const data = await res.json();
+                    if (Array.isArray(data) && data.length > 0) {
+                        const seenNames = new Set(baseStations.map(s => s.title.toLowerCase()));
+                        const liveExtras = data
+                            .filter(s => s && s.url_resolved && s.name && !seenNames.has(s.name.trim().toLowerCase()) && !s.url_resolved.endsWith('.m3u8'))
+                            .slice(0, 20)
+                            .map((s, idx) => {
+                                const synthFreq = (88.3 + ((idx * 1.1) % 19.2)).toFixed(1) + ' MHz';
+                                return {
+                                    title: s.name.trim(),
+                                    singer: s.state || s.language || 'India FM',
+                                    musicDirector: synthFreq,
+                                    freq: synthFreq,
+                                    city: s.state || 'India',
+                                    lang: 'FM',
+                                    duration: 0,
+                                    type: 'fm',
+                                    url: s.url_resolved,
+                                    artwork: s.favicon || `https://placehold.co/600x600/18191B/34D399?text=${encodeURIComponent(synthFreq)}`
+                                };
+                            });
+                        if (liveExtras.length > 0 && queueHeaderLabel.textContent.includes('LIVE FM')) {
+                            playlist = [...baseStations, ...liveExtras];
+                            renderPlaylist();
+                        }
+                    }
+                } catch (e) {}
+            }
+
+            // --- Queue Bottom Dock Details Modal ---
+            function openDockDetailsModal() {
+                const track = playlist[currentIndex];
+                if (!track || !dockDetailsModal) return;
+                const isFm = track.type === 'fm';
+                const modalArt = document.getElementById('modal-cover-art');
+                const modalTitle = document.getElementById('modal-track-title');
+                const modalSubtitle = document.getElementById('modal-track-subtitle');
+                const modalBadge = document.getElementById('modal-badge');
+                const modalSinger = document.getElementById('modal-singer');
+                const modalDirector = document.getElementById('modal-director');
+                const modalLang = document.getElementById('modal-lang');
+                const modalDuration = document.getElementById('modal-duration');
+
+                if (modalArt) modalArt.src = track.artwork || 'https://placehold.co/200x200/18191B/9CA3AF?text=D';
+                if (modalTitle) modalTitle.textContent = track.title || 'Unknown';
+                if (modalSubtitle) modalSubtitle.textContent = isFm ? `${track.freq || 'LIVE FM'} • ${track.city || 'India'}` : `${track.singer || 'Artist'} - ${track.musicDirector || 'Music Director'}`;
+                if (modalBadge) modalBadge.textContent = isFm ? 'LIVE FM BROADCAST' : (track.type === 'youtube' ? 'YOUTUBE AUDIO' : 'FREE HQ AUDIO');
+                if (modalSinger) modalSinger.textContent = track.singer || 'Artist';
+                if (modalDirector) modalDirector.textContent = track.musicDirector || 'Official';
+                if (modalLang) modalLang.textContent = track.lang || 'India';
+                if (modalDuration) modalDuration.textContent = isFm ? 'LIVE' : formatTime(track.duration || 0);
+
+                const liked = isTrackLiked(track);
+                if (modalLikeIcon) {
+                    modalLikeIcon.className = liked
+                        ? 'ph-fill ph-heart text-base text-rose-500 pointer-events-none'
+                        : 'ph-bold ph-heart text-base text-gray-300 pointer-events-none';
+                }
+
+                dockDetailsModal.classList.remove('hidden');
+                dockDetailsModal.classList.add('flex');
+            }
+
+            function closeDockDetailsModal() {
+                if (!dockDetailsModal) return;
+                dockDetailsModal.classList.add('hidden');
+                dockDetailsModal.classList.remove('flex');
+            }
+
+            async function loadTrendingSongs() {
+                showingLikedOnly = false;
+                setActiveCategoryTab(3);
+                modeIndicator.textContent = 'LOADING TRENDING...';
+                queueHeaderLabel.textContent = 'DILSE • TRENDING CHARTS';
+
+                try {
+                    await resolveAudiusHost();
+                    const seenIds = new Set();
+                    const trendingTracks = [];
+
+                    const endpoints = [
+                        `${audiusHost}/v1/tracks/trending?limit=100&app_name=Dilse`,
+                        `${audiusHost}/v1/tracks/trending?time=week&limit=100&app_name=Dilse`,
+                        `${audiusHost}/v1/tracks/trending?time=month&limit=100&app_name=Dilse`
+                    ];
+
+                    const responses = await Promise.all(
+                        endpoints.map(url =>
+                            fetch(url).then(r => r.json()).then(d => (d && d.data) ? d.data : []).catch(() => [])
+                        )
+                    );
+
+                    for (const items of responses) {
+                        for (const item of items) {
+                            const isFreeStreamable = item && item.id && !item.is_stream_gated && item.duration && item.duration >= 120 && item.duration <= MAX_SONG_DURATION;
+                            if (isFreeStreamable && !seenIds.has(item.id)) {
+                                seenIds.add(item.id);
+                                const userName = (item.user && item.user.name) ? item.user.name : 'Trending Artist';
+                                const meta = enrichTrackMetadata({
+                                    trackName: item.title,
+                                    collectionName: item.genre || 'Trending',
+                                    artistName: userName
+                                }, 'Trending');
+                                const art = item.artwork
+                                    ? (item.artwork['480x480'] || item.artwork['1000x1000'] || item.artwork['150x150'] || '')
+                                    : '';
+
+                                trendingTracks.push({
+                                    ...meta,
+                                    lang: 'Trending',
+                                    duration: item.duration,
+                                    type: 'stream',
+                                    trackId: item.id,
+                                    url: `${audiusHost}/v1/tracks/${item.id}/stream?app_name=Dilse`,
+                                    artwork: art || `https://placehold.co/600x600/18191B/E5E7EB?text=${encodeURIComponent(item.title)}`
+                                });
+                            }
+                        }
+                    }
+
+                    if (trendingTracks.length > 0) {
+                        playlist = trendingTracks;
+                        modeIndicator.textContent = `TRENDING (${playlist.length})`;
+                        loadTrack(0, false);
+                        showToast(`Loaded ${playlist.length} Trending songs`);
+                    }
+                } catch (err) {
+                    showToast('Failed to load Trending songs.');
+                }
+            }
+
+            async function searchSongs(query, tabIndex = null) {
+                if (!query.trim()) return;
+                showingLikedOnly = false;
+                if (tabIndex !== null) setActiveCategoryTab(tabIndex);
+                modeIndicator.textContent = `${query.toUpperCase()} SONGS`;
+                queueHeaderLabel.textContent = `DILSE • ${query.toUpperCase()}`;
+
+                try {
+                    await resolveAudiusHost();
+                    const seenIds = new Set();
+                    const fullTracks = [];
+                    const terms = [query, `${query} song`, `${query} hits`, `${query} remix`];
+
+                    const responses = await Promise.all(
+                        terms.map(t =>
+                            fetch(`${audiusHost}/v1/tracks/search?query=${encodeURIComponent(t)}&limit=100&app_name=Dilse`)
+                                .then(r => r.json())
+                                .then(d => (d && d.data) ? d.data : [])
+                                .catch(() => [])
+                        )
+                    );
+
+                    for (const items of responses) {
+                        for (const item of items) {
+                            const isFreeStreamable = item && item.id && !item.is_stream_gated && item.duration && item.duration >= 120 && item.duration <= MAX_SONG_DURATION;
+                            if (isFreeStreamable && !seenIds.has(item.id)) {
+                                seenIds.add(item.id);
+                                const userName = (item.user && item.user.name) ? item.user.name : 'Independent Artist';
+                                const meta = enrichTrackMetadata({
+                                    trackName: item.title,
+                                    collectionName: item.genre || query,
+                                    artistName: userName
+                                }, query);
+                                const art = item.artwork
+                                    ? (item.artwork['480x480'] || item.artwork['1000x1000'] || item.artwork['150x150'] || '')
+                                    : '';
+
+                                fullTracks.push({
+                                    ...meta,
+                                    lang: query,
+                                    duration: item.duration,
+                                    type: 'stream',
+                                    trackId: item.id,
+                                    url: `${audiusHost}/v1/tracks/${item.id}/stream?app_name=Dilse`,
+                                    artwork: art || `https://placehold.co/600x600/18191B/E5E7EB?text=${encodeURIComponent(item.title)}`
+                                });
+                            }
+                        }
+                    }
+
+                    if (fullTracks.length > 0) {
+                        playlist = fullTracks;
+                        modeIndicator.textContent = `${playlist.length} ${query.toUpperCase()} SONGS`;
+                        loadTrack(0, true);
+                        showToast(`Loaded ${playlist.length} ${query} songs`);
+                    } else {
+                        showToast(`No free songs found for "${query}"`);
+                    }
+                } catch (e) {
+                    showToast('Failed to load free songs.');
+                }
+            }
+
+            function extractYouTubeId(input) {
+                const regExp = /(?:youtube\.com\/(?:[^\/]+\/.+\/|(?:v|e(?:mbed)?)\/|shorts\/|.*[?&]v=)|youtu\.be\/)([^"&?\/\s]{11})/;
+                const match = input.match(regExp);
+                if (match && match[1]) return match[1];
+                if (/^[a-zA-Z0-9_-]{11}$/.test(input.trim())) return input.trim();
+                return null;
+            }
+
+            // --- Event Listeners ---
+            btnPlay.addEventListener('click', togglePlayPause);
+            btnDockPlay.addEventListener('click', togglePlayPause);
+            btnPrev.addEventListener('click', prevTrack);
+            btnRw.addEventListener('click', () => rewindTrack(10));
+            btnFf.addEventListener('click', () => fastForwardTrack(10));
+            btnNext.addEventListener('click', nextTrack);
+            btnLikeCurrent.addEventListener('click', () => window.toggleLikeTrack(currentIndex));
+            btnCenterLike.addEventListener('click', () => window.toggleLikeTrack(currentIndex));
+            btnDockLike.addEventListener('click', () => window.toggleLikeTrack(currentIndex));
+            btnTrendingTab.addEventListener('click', loadTrendingSongs);
+
+            if (btnFmHeader) btnFmHeader.addEventListener('click', () => loadFmStations(true));
+            if (btnFmTab) btnFmTab.addEventListener('click', () => loadFmStations(true));
+
+            // --- Local Device Audio & Video File Handler ---
+            function formatBytes(bytes) {
+                if (!bytes) return 'Local File';
+                const mb = bytes / (1024 * 1024);
+                return mb >= 1 ? `${mb.toFixed(1)} MB` : `${Math.round(bytes / 1024)} KB`;
+            }
+
+            function handleLocalFilesSelected(fileList) {
+                const files = Array.from(fileList || []);
+                if (files.length === 0) return;
+
+                let firstVideoTrack = null;
+                let addedCount = 0;
+
+                files.forEach(file => {
+                    const objectUrl = URL.createObjectURL(file);
+                    const cleanName = file.name.replace(/\.[^/.]+$/, '');
+                    const isVideo = file.type.startsWith('video/') || /\.(mp4|webm|mkv|mov|avi)$/i.test(file.name);
+                    const sizeStr = formatBytes(file.size);
+
+                    const trackObj = {
+                        title: cleanName,
+                        singer: isVideo ? 'Local Video' : 'Local Audio',
+                        musicDirector: sizeStr,
+                        fileSize: sizeStr,
+                        lang: 'Local',
+                        duration: 0,
+                        type: isVideo ? 'local-video' : 'local',
+                        trackId: `local_${Date.now()}_${Math.random().toString(36).slice(2, 7)}`,
+                        url: objectUrl,
+                        artwork: isVideo
+                            ? `https://placehold.co/600x600/18191B/FBBF24?text=VIDEO`
+                            : `https://placehold.co/600x600/18191B/FBBF24?text=LOCAL`
+                    };
+
+                    localTracks.unshift(trackObj);
+                    addedCount++;
+                    if (isVideo && !firstVideoTrack) {
+                        firstVideoTrack = trackObj;
+                    }
+                });
+
+                if (localCountEl) localCountEl.textContent = localTracks.length;
+                showingLikedOnly = false;
+                setActiveCategoryTab(1);
+                playlist = [...localTracks];
+                modeIndicator.textContent = `LOCAL FILES (${playlist.length})`;
+                queueHeaderLabel.textContent = 'DILSE • DEVICE LOCAL FILES';
+
+                if (firstVideoTrack) {
+                    renderPlaylist();
+                    scrollToDeckScreen(screenVideoEl);
+                    playLocalVideoInCinemaDeck(firstVideoTrack, true);
+                    showToast(`Playing Local Video: "${firstVideoTrack.title}"`);
+                } else {
+                    loadTrack(0, true);
+                    showToast(`Added ${addedCount} Local File${addedCount > 1 ? 's' : ''}`);
+                }
+            }
+
+            if (btnLocalPicker && localFileInput) {
+                btnLocalPicker.addEventListener('click', () => localFileInput.click());
+                localFileInput.addEventListener('change', (e) => {
+                    handleLocalFilesSelected(e.target.files);
+                    localFileInput.value = '';
+                });
+            }
+            if (btnOpenLocalVideo && localFileInput) {
+                btnOpenLocalVideo.addEventListener('click', () => localFileInput.click());
+            }
+            if (btnLocalTab) {
+                btnLocalTab.addEventListener('click', () => {
+                    setActiveCategoryTab(1);
+                    queueHeaderLabel.textContent = 'DILSE • DEVICE LOCAL FILES';
+                    if (localTracks.length === 0) {
+                        if (localFileInput) localFileInput.click();
+                        return;
+                    }
+                    showingLikedOnly = false;
+                    playlist = [...localTracks];
+                    modeIndicator.textContent = `LOCAL FILES (${playlist.length})`;
+                    loadTrack(0, false);
+                });
+            }
+
+            if (cinemaLocalVideo) {
+                cinemaLocalVideo.addEventListener('play', () => setCinemaPlayingState(true));
+                cinemaLocalVideo.addEventListener('pause', () => setCinemaPlayingState(false));
+                cinemaLocalVideo.addEventListener('ended', () => setCinemaPlayingState(false));
+                cinemaLocalVideo.addEventListener('timeupdate', () => {
+                    if (currentCinemaMode !== 'local') return;
+                    const cur = cinemaLocalVideo.currentTime || 0;
+                    const dur = cinemaLocalVideo.duration || 0;
+                    if (vidCurrentTime) vidCurrentTime.textContent = formatTime(cur);
+                    if (vidDurationTime) vidDurationTime.textContent = formatTime(dur);
+                    if (vidProgressBar && dur > 0) {
+                        vidProgressBar.style.width = `${Math.min(100, (cur / dur) * 100)}%`;
+                    }
+                });
+            }
+
+            if (dockBarTrigger) dockBarTrigger.addEventListener('click', openDockDetailsModal);
+            if (btnCloseDockDetails) btnCloseDockDetails.addEventListener('click', closeDockDetailsModal);
+            if (dockDetailsModal) {
+                dockDetailsModal.addEventListener('click', (e) => {
+                    if (e.target === dockDetailsModal) closeDockDetailsModal();
+                });
+            }
+            if (btnModalPlay) btnModalPlay.addEventListener('click', togglePlayPause);
+            if (btnModalLike) {
+                btnModalLike.addEventListener('click', () => {
+                    window.toggleLikeTrack(currentIndex);
+                    openDockDetailsModal();
+                });
+            }
+            if (btnModalWatchVideo) {
+                btnModalWatchVideo.addEventListener('click', () => {
+                    closeDockDetailsModal();
+                    if (btnSyncAudioToVideo) btnSyncAudioToVideo.click();
+                });
+            }
+
+            function scrollToDeckScreen(targetEl, instant = false) {
+                if (!targetEl) return;
+                if (dualDeckViewport && window.innerWidth < 1024) {
+                    const targetLeft = targetEl.offsetLeft;
+                    dualDeckViewport.scrollTo({ left: targetLeft, behavior: instant ? 'auto' : 'smooth' });
+                } else {
+                    targetEl.scrollIntoView({ behavior: instant ? 'auto' : 'smooth', inline: 'nearest', block: 'nearest' });
+                }
+            }
+
+            if (btnGoQueue && screenQueueEl) {
+                btnGoQueue.addEventListener('click', () => scrollToDeckScreen(screenQueueEl));
+            }
+            if (btnBackPlayer && screenPlayerEl) {
+                btnBackPlayer.addEventListener('click', () => scrollToDeckScreen(screenPlayerEl));
+            }
+            if (btnVideoBack && screenPlayerEl) {
+                btnVideoBack.addEventListener('click', () => scrollToDeckScreen(screenPlayerEl));
+            }
+
+            // Cinema Orientation, Fullscreen & Custom Video Control Listeners
+            if (btnOrientH) btnOrientH.addEventListener('click', () => setCinemaOrientation('h'));
+            if (btnOrientV) btnOrientV.addEventListener('click', () => setCinemaOrientation('v'));
+            if (btnVideoFullscreen) btnVideoFullscreen.addEventListener('click', openCinemaFullscreen);
+            if (btnFsExit) btnFsExit.addEventListener('click', closeCinemaFullscreen);
+            if (btnFsRotateToggle) {
+                btnFsRotateToggle.addEventListener('click', () => {
+                    isFsRotated = !isFsRotated;
+                    if (cinemaFsStage) {
+                        cinemaFsStage.classList.toggle('cinema-rotated-landscape', isFsRotated);
+                    }
+                });
+            }
+
+            function toggleCinemaPlayPause() {
+                if (currentCinemaMode === 'local' && cinemaLocalVideo) {
+                    if (cinemaLocalVideo.paused) {
+                        cinemaLocalVideo.play().then(() => setCinemaPlayingState(true)).catch(() => {});
+                    } else {
+                        cinemaLocalVideo.pause();
+                        setCinemaPlayingState(false);
+                    }
+                    return;
+                }
+                if (!cinemaYtPlayer || !cinemaYtReady) return;
+                if (cinemaVideoPlaying) {
+                    cinemaYtPlayer.pauseVideo();
+                    setCinemaPlayingState(false);
+                } else {
+                    cinemaYtPlayer.playVideo();
+                    setCinemaPlayingState(true);
+                }
+            }
+
+            function seekCinemaBy(deltaSec) {
+                if (currentCinemaMode === 'local' && cinemaLocalVideo && cinemaLocalVideo.duration) {
+                    cinemaLocalVideo.currentTime = Math.max(0, Math.min(cinemaLocalVideo.duration, cinemaLocalVideo.currentTime + deltaSec));
+                    return;
+                }
+                if (!cinemaYtPlayer || !cinemaYtReady || typeof cinemaYtPlayer.getCurrentTime !== 'function') return;
+                const cur = cinemaYtPlayer.getCurrentTime() || 0;
+                const dur = cinemaYtPlayer.getDuration() || 0;
+                const next = Math.max(0, dur > 0 ? Math.min(dur, cur + deltaSec) : cur + deltaSec);
+                cinemaYtPlayer.seekTo(next, true);
+            }
+
+            if (btnVidPlay) btnVidPlay.addEventListener('click', toggleCinemaPlayPause);
+            if (btnFsPlay) btnFsPlay.addEventListener('click', toggleCinemaPlayPause);
+            if (btnVidRw) btnVidRw.addEventListener('click', () => seekCinemaBy(-10));
+            if (btnFsRw) btnFsRw.addEventListener('click', () => seekCinemaBy(-10));
+            if (btnVidFf) btnVidFf.addEventListener('click', () => seekCinemaBy(10));
+            if (btnFsFf) btnFsFf.addEventListener('click', () => seekCinemaBy(10));
+
+            if (btnVidMute) {
+                btnVidMute.addEventListener('click', () => {
+                    cinemaVideoMuted = !cinemaVideoMuted;
+                    if (cinemaLocalVideo) cinemaLocalVideo.muted = cinemaVideoMuted;
+                    if (cinemaYtPlayer && cinemaYtReady) {
+                        if (cinemaVideoMuted) cinemaYtPlayer.mute();
+                        else cinemaYtPlayer.unMute();
+                    }
+                    if (vidMuteIcon) {
+                        vidMuteIcon.className = cinemaVideoMuted
+                            ? 'ph-bold ph-speaker-slash text-sm text-rose-400 pointer-events-none'
+                            : 'ph-bold ph-speaker-high text-sm pointer-events-none';
+                    }
+                });
+            }
+
+            if (vidProgressContainer) {
+                vidProgressContainer.addEventListener('click', (e) => {
+                    const rect = vidProgressContainer.getBoundingClientRect();
+                    const pct = Math.max(0, Math.min(1, (e.clientX - rect.left) / rect.width));
+                    if (currentCinemaMode === 'local' && cinemaLocalVideo && cinemaLocalVideo.duration) {
+                        cinemaLocalVideo.currentTime = pct * cinemaLocalVideo.duration;
+                        return;
+                    }
+                    if (!cinemaYtPlayer || !cinemaYtReady) return;
+                    const dur = cinemaYtPlayer.getDuration() || 0;
+                    if (dur > 0) cinemaYtPlayer.seekTo(pct * dur, true);
+                });
+            }
+
+            if (btnVidToAudio) {
+                btnVidToAudio.addEventListener('click', () => {
+                    if (currentCinemaMode === 'local' && currentCinemaLocalTrack) {
+                        if (cinemaLocalVideo) cinemaLocalVideo.pause();
+                        setCinemaPlayingState(false);
+                        playlist.unshift({
+                            ...currentCinemaLocalTrack,
+                            type: 'local',
+                            singer: 'Local Video Audio'
+                        });
+                        scrollToDeckScreen(screenPlayerEl);
+                        loadTrack(0, true);
+                        showToast('Switched Local Video to Audio Mode');
+                        return;
+                    }
+                    if (!currentCinemaVideoId) {
+                        showToast('Play a video first to switch to audio');
+                        return;
+                    }
+                    if (cinemaYtPlayer && cinemaYtReady && typeof cinemaYtPlayer.pauseVideo === 'function') {
+                        cinemaYtPlayer.pauseVideo();
+                        setCinemaPlayingState(false);
+                    }
+                    playlist.unshift({
+                        title: currentCinemaTitle || 'YouTube Audio',
+                        singer: 'YouTube Stream',
+                        musicDirector: 'YouTube Audio',
+                        lang: 'YouTube',
+                        duration: 240,
+                        type: 'youtube',
+                        videoId: currentCinemaVideoId,
+                        artwork: `https://i.ytimg.com/vi/${currentCinemaVideoId}/hqdefault.jpg`
+                    });
+                    scrollToDeckScreen(screenPlayerEl);
+                    loadTrack(0, true);
+                    showToast('Switched to YouTube Audio Mode');
+                });
+            }
+
+            if (videoSearchForm) {
+                videoSearchForm.addEventListener('submit', async (e) => {
+                    e.preventDefault();
+                    const q = videoSearchInput ? videoSearchInput.value.trim() : '';
+                    if (!q) return;
+                    const directId = extractYouTubeId(q);
+                    if (directId) {
+                        playVideoInCinemaDeck(directId, `YouTube Video (${directId})`, 'YOUTUBE STREAM', true);
+                        return;
+                    }
+                    showToast(`Searching YouTube Video: "${q}"...`);
+                    const matches = await fetchYouTubeSearchItems(q, '');
+                    if (matches.length > 0) {
+                        playVideoInCinemaDeck(matches[0].videoId, matches[0].title, `YOUTUBE • ${matches[0].singer.toUpperCase()}`, true);
+                    } else {
+                        showToast(`No video found for "${q}"`);
+                    }
+                });
+            }
+
+            if (btnSyncAudioToVideo) {
+                btnSyncAudioToVideo.addEventListener('click', async () => {
+                    const track = playlist[currentIndex];
+                    if (!track) {
+                        showToast('Select a song first');
+                        return;
+                    }
+                    scrollToDeckScreen(screenVideoEl);
+                    if (track.type === 'local-video') {
+                        playLocalVideoInCinemaDeck(track, true);
+                        return;
+                    }
+                    if (track.type === 'youtube' && track.videoId) {
+                        playVideoInCinemaDeck(track.videoId, track.title, `YOUTUBE • ${track.singer.toUpperCase()}`, true);
+                        return;
+                    }
+                    showToast(`Finding video for "${track.title}"...`);
+                    const matches = await fetchYouTubeSearchItems(`${track.title} ${track.singer || ''}`, 'video song');
+                    if (matches.length > 0) {
+                        playVideoInCinemaDeck(matches[0].videoId, matches[0].title, `YOUTUBE • ${matches[0].singer.toUpperCase()}`, true);
+                    } else {
+                        showToast(`No video found for "${track.title}"`);
+                    }
+                });
+            }
+
+            videoPresetChips.forEach(chip => {
+                chip.addEventListener('click', async () => {
+                    const q = chip.getAttribute('data-vquery');
+                    const orient = chip.getAttribute('data-vorient') || 'h';
+                    setCinemaOrientation(orient);
+                    showToast(`Loading ${q}...`);
+                    const matches = await fetchYouTubeSearchItems(q, '');
+                    if (matches.length > 0) {
+                        playVideoInCinemaDeck(matches[0].videoId, matches[0].title, orient === 'v' ? 'VERTICAL • 9:16' : 'HORIZONTAL • 16:9', true);
+                    } else {
+                        showToast('Could not load preset video');
+                    }
+                });
+            });
+
+            btnToggleSearch.addEventListener('click', () => {
+                ytSearchDrawer.classList.toggle('hidden');
+                if (!ytSearchDrawer.classList.contains('hidden')) {
+                    ytSearchInput.focus();
+                }
+            });
+
+            ytSearchForm.addEventListener('submit', (e) => {
+                e.preventDefault();
+                const q = ytSearchInput.value.trim();
+                if (q) {
+                    searchYouTubeSongs(q);
+                    ytSearchDrawer.classList.add('hidden');
+                }
+            });
+
+            btnLikedTab.addEventListener('click', () => {
+                setActiveCategoryTab(4);
+                queueHeaderLabel.textContent = 'DILSE • LIKED SONGS';
+                if (likedSongs.length === 0) {
+                    showingLikedOnly = true;
+                    playlist = [];
+                    modeIndicator.textContent = 'LIKED SONGS (0)';
+                    renderPlaylist();
+                    showToast('No liked songs yet! Tap ❤️ on any song.');
+                    return;
+                }
+                showingLikedOnly = true;
+                playlist = [...likedSongs];
+                modeIndicator.textContent = `LIKED (${playlist.length})`;
+                loadTrack(0, false);
+                showToast(`Showing ${playlist.length} Liked Songs ❤️`);
+            });
+
+            btnShuffle.addEventListener('click', () => {
+                isShuffle = !isShuffle;
+                btnShuffle.classList.toggle('text-white', isShuffle);
+                btnShuffle.classList.toggle('font-bold', isShuffle);
+                btnShuffle.classList.toggle('text-gray-300', !isShuffle);
+                showToast(`Shuffle: ${isShuffle ? 'ON' : 'OFF'}`);
+            });
+
+            btnRepeat.addEventListener('click', () => {
+                isRepeat = !isRepeat;
+                btnRepeat.classList.toggle('tactile-active', isRepeat);
+                btnRepeat.classList.toggle('text-gray-300', !isRepeat);
+                showToast(`Repeat Track: ${isRepeat ? 'ON' : 'OFF'}`);
+            });
+
+            progressContainer.addEventListener('click', (e) => {
+                const rect = progressContainer.getBoundingClientRect();
+                const pct = Math.max(0, Math.min(1, (e.clientX - rect.left) / rect.width));
+                const track = playlist[currentIndex];
+                if (!track || track.type === 'fm') return;
+                if (track.type === 'youtube' && ytPlayer && ytReady) {
+                    const dur = ytPlayer.getDuration() || track.duration || 210;
+                    ytPlayer.seekTo(pct * dur, true);
+                } else if (audioEl.duration && !isNaN(audioEl.duration)) {
+                    audioEl.currentTime = pct * audioEl.duration;
+                }
+            });
+
+            audioEl.addEventListener('timeupdate', () => {
+                const track = playlist[currentIndex];
+                if (track && track.type === 'fm') return;
+                const cur = audioEl.currentTime || 0;
+                const dur = (audioEl.duration && !isNaN(audioEl.duration)) ? audioEl.duration : (track && track.duration ? track.duration : 0);
+                currentTimeEl.textContent = formatTime(cur);
+                if (dur > 0) {
+                    const rem = Math.max(0, dur - cur);
+                    durationTimeEl.textContent = `-${formatTime(rem)}`;
+                    progressBar.style.width = `${Math.min(100, (cur / dur) * 100)}%`;
+                }
+            });
+
+            audioEl.addEventListener('error', async () => {
+                const track = playlist[currentIndex];
+                if (track && track.trackId && !track.retriedHost) {
+                    track.retriedHost = true;
+                    await resolveAudiusHost(true);
+                    track.url = `${audiusHost}/v1/tracks/${track.trackId}/stream?app_name=Dilse`;
+                    audioEl.src = track.url;
+                    audioEl.play().catch(() => nextTrack());
+                    return;
+                }
+                nextTrack();
+            });
+
+            audioEl.addEventListener('ended', () => {
+                if (isRepeat) {
+                    audioEl.currentTime = 0;
+                    audioEl.play().catch(() => {});
+                } else {
+                    nextTrack();
+                }
+            });
+
+            btnLoadSouth100.addEventListener('click', loadSouthIndiaTop150);
+
+            quickChips.forEach(chip => {
+                chip.addEventListener('click', () => {
+                    const q = chip.getAttribute('data-query');
+                    const idx = Number(chip.getAttribute('data-cat-index'));
+                    searchSongs(q, isNaN(idx) ? null : idx);
+                });
+            });
+
+            document.addEventListener('keydown', (e) => {
+                if (e.target.tagName === 'INPUT') return;
+                if (e.code === 'Escape' && isCinemaFullscreen) {
+                    closeCinemaFullscreen();
+                } else if (e.code === 'Space') {
+                    e.preventDefault();
+                    togglePlayPause();
+                } else if (e.code === 'ArrowRight') {
+                    nextTrack();
+                } else if (e.code === 'ArrowLeft') {
+                    prevTrack();
+                }
+            });
+
+            // Center the Main iPod Click-Wheel Screen on mobile/tablet initial load
+            if (window.innerWidth < 1024 && screenPlayerEl) {
+                requestAnimationFrame(() => scrollToDeckScreen(screenPlayerEl, true));
+            }
+
+            saveLikedSongs();
+            loadSouthIndiaTop150();
+        });
+    </script>
+</body>
+</html>
