@@ -1,0 +1,1118 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Dilse // Tactile Matte Audio, FM & Video Deck</title>
+    <!-- Tailwind CSS -->
+    <script src="https://cdn.tailwindcss.com"></script>
+    <!-- Google Fonts: Inter & JetBrains Mono -->
+    <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700&family=JetBrains+Mono:wght@400;500;600&display=swap" rel="stylesheet">
+    <!-- Phosphor Icons -->
+    <script src="https://unpkg.com/@phosphor-icons/web"></script>
+    <script>
+        tailwind.config = {
+            theme: {
+                extend: {
+                    fontFamily: {
+                        sans: ['"Inter"', 'sans-serif'],
+                        mono: ['"JetBrains Mono"', 'monospace'],
+                    },
+                    colors: {
+                        chassis: '#242528',
+                        chassisDark: '#1C1D20',
+                        accent: '#E5E7EB',
+                    }
+                }
+            }
+        }
+    </script>
+    <style>
+        /* Sleek Custom Scrollbars */
+        ::-webkit-scrollbar { width: 3px; height: 3px; }
+        ::-webkit-scrollbar-track { background: transparent; }
+        ::-webkit-scrollbar-thumb { background: rgba(255, 255, 255, 0.14); border-radius: 999px; }
+        ::-webkit-scrollbar-thumb:hover { background: rgba(255, 255, 255, 0.35); }
+        .no-scrollbar::-webkit-scrollbar { display: none; }
+        .no-scrollbar { -ms-overflow-style: none; scrollbar-width: none; }
+
+        /* Matte Neumorphic / Tactile Hardware Surfaces */
+        .matte-device {
+            position: relative;
+            background: linear-gradient(165deg, #2D2E32 0%, #1F2023 55%, #18191B 100%);
+            box-shadow: inset 0 1px 1px rgba(255, 255, 255, 0.14);
+        }
+
+        .recessed-screen {
+            position: relative;
+            background: linear-gradient(145deg, #16171A, #111214);
+            border: 1.5px solid rgba(255, 255, 255, 0.08);
+            box-shadow:
+                inset 0 8px 22px rgba(0, 0, 0, 0.85),
+                inset 0 1px 3px rgba(0, 0, 0, 0.9),
+                0 1px 0 rgba(255, 255, 255, 0.07);
+        }
+
+        /* Circular Sound-Wave Wire Rings around Round Art Cards */
+        @keyframes wireWavePulse {
+            0% {
+                transform: scale(0.98);
+                opacity: 0.72;
+            }
+            100% {
+                transform: scale(1.22);
+                opacity: 0;
+            }
+        }
+
+        @keyframes wireRingSpin {
+            0% { transform: rotate(0deg); }
+            100% { transform: rotate(360deg); }
+        }
+
+        .rgb-art-playing #cover-art,
+        .rgb-art-playing #mini-cover-art {
+            animation: wireRingSpin 22s linear infinite;
+        }
+
+        .wave-wire-ring {
+            position: absolute;
+            inset: -4px;
+            border-radius: 9999px;
+            border: 1.25px solid rgba(229, 231, 235, 0.45);
+            pointer-events: none;
+            opacity: 0;
+            transition: opacity 0.3s ease;
+        }
+
+        .wave-wire-ring-dashed {
+            position: absolute;
+            inset: -7px;
+            border-radius: 9999px;
+            border: 1px dashed rgba(229, 231, 235, 0.25);
+            pointer-events: none;
+            opacity: 0;
+            transition: opacity 0.3s ease;
+        }
+
+        .rgb-art-playing .wave-wire-ring {
+            animation: wireWavePulse 2.1s cubic-bezier(0.22, 1, 0.36, 1) infinite;
+        }
+
+        .rgb-art-playing .wave-wire-ring.delay-1 {
+            animation-delay: 0.7s;
+        }
+
+        .rgb-art-playing .wave-wire-ring.delay-2 {
+            animation-delay: 1.4s;
+        }
+
+        .rgb-art-playing .wave-wire-ring-dashed {
+            opacity: 0.85;
+            animation: wireRingSpin 14s linear infinite;
+        }
+
+        .click-wheel-outer {
+            background: linear-gradient(145deg, #1E1F22, #292A2E);
+            box-shadow:
+                10px 14px 28px rgba(0, 0, 0, 0.68),
+                -4px -4px 12px rgba(255, 255, 255, 0.04),
+                inset 0 1px 1px rgba(255, 255, 255, 0.09);
+            border: 1px solid rgba(0, 0, 0, 0.45);
+        }
+
+        .click-wheel-center {
+            background: linear-gradient(145deg, #28292D, #1B1C1E);
+            box-shadow:
+                inset 0 3px 8px rgba(0, 0, 0, 0.75),
+                0 1px 1px rgba(255, 255, 255, 0.08);
+            border: 1px solid rgba(0, 0, 0, 0.5);
+        }
+
+        .tactile-round-btn {
+            background: linear-gradient(145deg, #2B2C30, #1D1E21);
+            box-shadow:
+                6px 8px 16px rgba(0, 0, 0, 0.6),
+                -2px -2px 8px rgba(255, 255, 255, 0.04),
+                inset 0 1px 1px rgba(255, 255, 255, 0.1);
+            border: 1px solid rgba(255, 255, 255, 0.05);
+        }
+        .tactile-round-btn:active {
+            box-shadow: inset 0 3px 8px rgba(0, 0, 0, 0.8);
+            transform: scale(0.95);
+        }
+        .tactile-active {
+            color: #ffffff !important;
+            box-shadow:
+                inset 0 2px 6px rgba(0, 0, 0, 0.78),
+                0 0 12px rgba(255, 255, 255, 0.12);
+        }
+
+        .active-track-slot {
+            background: linear-gradient(180deg, #1A1B1E 0%, #222327 100%);
+            box-shadow:
+                inset 0 2px 6px rgba(0, 0, 0, 0.7),
+                0 1px 0 rgba(255, 255, 255, 0.07);
+            border: 1px solid rgba(255, 255, 255, 0.06);
+        }
+
+        .mini-dock {
+            background: linear-gradient(180deg, #1B1C1F 0%, #151618 100%);
+            box-shadow:
+                0 10px 24px rgba(0, 0, 0, 0.65),
+                inset 0 1px 0 rgba(255, 255, 255, 0.08);
+            border: 1px solid rgba(255, 255, 255, 0.07);
+        }
+
+        /* Animated Mini Equalizer Bars */
+        @keyframes eqBounce {
+            0%, 100% { height: 25%; }
+            50% { height: 100%; }
+        }
+        .eq-bar { animation: eqBounce 0.7s ease-in-out infinite; }
+        .eq-bar:nth-child(2) { animation-delay: 0.2s; }
+        .eq-bar:nth-child(3) { animation-delay: 0.4s; }
+
+        /* Fullscreen Rotated Cinema Mode */
+        .cinema-rotated-landscape {
+            width: 100vh !important;
+            height: 100vw !important;
+            transform: rotate(90deg);
+            transform-origin: center center;
+        }
+    </style>
+</head>
+<body class="bg-[#26272B] text-gray-200 min-h-dvh flex items-center justify-center p-0 selection:bg-white selection:text-black overflow-x-hidden relative">
+
+    <!-- 3-Screen Hardware Deck Container (Left: Queue/FM, Center: Main iPod Player, Right: Video Player) -->
+    <main id="dual-deck-viewport" class="relative z-10 w-full max-w-[1180px] flex lg:grid lg:grid-cols-3 overflow-x-auto lg:overflow-visible snap-x snap-mandatory scroll-smooth no-scrollbar gap-0 lg:gap-6 items-stretch lg:items-start lg:justify-items-center">
+
+        <!-- ========================================================= -->
+        <!-- SCREEN 1 (LEFT DECK): PLAYLIST QUEUE, FM & MINI DOCK      -->
+        <!-- ========================================================= -->
+        <section id="screen-queue" class="w-full max-w-none sm:max-w-[390px] lg:max-w-[360px] min-h-dvh lg:min-h-[680px] shrink-0 snap-start sm:snap-center mx-auto lg:mx-0 matte-device rounded-none p-5 sm:p-6 flex flex-col justify-between relative">
+            <!-- Top Header Bar -->
+            <header class="flex items-center justify-between px-1 mb-4">
+                <button type="button" id="btn-back-player" title="Go to Main iPod Player" class="w-7 h-7 rounded-full flex items-center justify-center text-gray-400 hover:text-white transition active:scale-90">
+                    <i class="ph-bold ph-caret-right text-sm pointer-events-none"></i>
+                </button>
+
+                <span id="queue-header-label" class="text-[10px] font-semibold tracking-[0.2em] text-gray-300 uppercase truncate max-w-[210px]">
+                    DILSE • ALL FREE SONGS
+                </span>
+
+                <span id="queue-count" class="text-[9px] font-mono text-gray-500">0</span>
+            </header>
+
+            <!-- Center Mini Round Artwork Flanked by Like & Repeat Round Buttons -->
+            <div class="flex items-center justify-center gap-5 my-2">
+                <button type="button" id="btn-like-current" title="Like / Favorite Current Song" class="w-10 h-10 rounded-full tactile-round-btn flex items-center justify-center text-gray-300 hover:text-rose-400 transition">
+                    <i id="like-current-icon" class="ph-fill ph-heart text-sm pointer-events-none"></i>
+                </button>
+
+                <div class="relative w-24 h-24 flex items-center justify-center shrink-0">
+                    <!-- Animated Wire Wave Rings -->
+                    <span class="wave-wire-ring"></span>
+                    <span class="wave-wire-ring delay-1"></span>
+                    <span class="wave-wire-ring-dashed"></span>
+
+                    <div class="w-full h-full rounded-full recessed-screen p-1.5 flex items-center justify-center relative z-10">
+                        <div class="w-full h-full rounded-full overflow-hidden bg-[#121315] relative flex items-center justify-center">
+                            <i class="ph-duotone ph-music-notes text-2xl text-white/20"></i>
+                            <img id="mini-cover-art" src="" alt="" class="absolute inset-0 w-full h-full object-cover" onerror="this.style.display='none'">
+                        </div>
+                    </div>
+                </div>
+
+                <button type="button" id="btn-repeat" title="Repeat Track" class="w-10 h-10 rounded-full tactile-round-btn flex items-center justify-center text-gray-300 hover:text-white transition">
+                    <i class="ph-bold ph-repeat text-sm pointer-events-none"></i>
+                </button>
+            </div>
+
+            <!-- Category / FM / Language Filter Chips -->
+            <div id="category-tabs-bar" class="flex items-center gap-1.5 overflow-x-auto py-2.5 mt-2 no-scrollbar shrink-0 border-b border-white/[0.05]">
+                <button type="button" id="btn-load-south100" data-cat-index="0" class="cat-tab shrink-0 px-2.5 py-1 rounded-full bg-white/15 text-white text-[10px] font-medium transition">All</button>
+                <button type="button" id="btn-local-tab" data-cat-index="1" class="cat-tab shrink-0 px-2.5 py-1 rounded-full bg-white/[0.04] hover:bg-white/10 text-[10px] text-amber-300 font-medium transition flex items-center gap-1">
+                    <i class="ph-bold ph-folder-open text-xs"></i> Local (<span id="local-count">0</span>)
+                </button>
+                <button type="button" id="btn-fm-tab" data-cat-index="2" class="cat-tab shrink-0 px-2.5 py-1 rounded-full bg-white/[0.04] hover:bg-white/10 text-[10px] text-emerald-400 font-medium transition flex items-center gap-1">
+                    <i class="ph-bold ph-radio text-xs"></i> FM Radio
+                </button>
+                <button type="button" id="btn-trending-tab" data-cat-index="3" class="cat-tab shrink-0 px-2.5 py-1 rounded-full bg-white/[0.04] hover:bg-white/10 text-[10px] text-gray-400 transition">Trending</button>
+                <button type="button" id="btn-liked-tab" data-cat-index="4" class="cat-tab shrink-0 px-2.5 py-1 rounded-full bg-white/[0.04] hover:bg-white/10 text-[10px] text-gray-400 transition">Liked (<span id="liked-count">0</span>)</button>
+                <button type="button" data-query="Telugu" data-cat-index="5" class="cat-tab quick-chip shrink-0 px-2.5 py-1 rounded-full bg-white/[0.04] hover:bg-white/10 text-[10px] text-gray-400 transition">Telugu</button>
+                <button type="button" data-query="Tamil" data-cat-index="6" class="cat-tab quick-chip shrink-0 px-2.5 py-1 rounded-full bg-white/[0.04] hover:bg-white/10 text-[10px] text-gray-400 transition">Tamil</button>
+                <button type="button" data-query="Kannada" data-cat-index="7" class="cat-tab quick-chip shrink-0 px-2.5 py-1 rounded-full bg-white/[0.04] hover:bg-white/10 text-[10px] text-gray-400 transition">Kannada</button>
+                <button type="button" data-query="Malayalam" data-cat-index="8" class="cat-tab quick-chip shrink-0 px-2.5 py-1 rounded-full bg-white/[0.04] hover:bg-white/10 text-[10px] text-gray-400 transition">Malayalam</button>
+            </div>
+
+            <!-- Numbered Tracklist -->
+            <ul id="playlist" class="overflow-y-auto space-y-1 my-2.5 pr-1 h-[245px]">
+                <!-- Dynamically Populated Tracks & FM Stations -->
+            </ul>
+
+            <!-- Clickable Bottom Docked Mini-Player Pill (Opens Details Popup) -->
+            <div id="dock-bar-trigger" role="button" tabindex="0" title="Tap for Track / FM Details" class="mini-dock rounded-2xl p-2 flex items-center justify-between gap-2.5 mt-1 cursor-pointer hover:border-white/20 transition">
+                <div class="flex items-center gap-2.5 min-w-0">
+                    <img id="dock-cover-art" src="https://placehold.co/80x80/18191B/9CA3AF?text=D" alt=""
+                         onerror="this.src='https://placehold.co/80x80/18191B/9CA3AF?text=D'"
+                         class="w-9 h-9 rounded-full object-cover bg-black shrink-0 border border-white/10">
+                    <div class="min-w-0">
+                        <p id="dock-track-title" class="text-xs font-medium text-gray-200 truncate">Select a song</p>
+                        <p class="text-[9px] font-mono text-gray-500">Tap for details</p>
+                    </div>
+                </div>
+                <div class="flex items-center gap-2 pr-1 shrink-0" onclick="event.stopPropagation()">
+                    <button type="button" id="btn-dock-like" title="Like" class="p-1.5 text-gray-300 hover:text-rose-400 transition active:scale-90">
+                        <i id="dock-like-icon" class="ph-bold ph-heart text-base pointer-events-none"></i>
+                    </button>
+                    <button type="button" id="btn-dock-play" title="Play / Pause" class="p-1.5 text-gray-200 hover:text-white transition active:scale-90">
+                        <i id="dock-play-icon" class="ph-fill ph-play text-base pointer-events-none"></i>
+                    </button>
+                </div>
+            </div>
+
+            <!-- Mobile Screen Indicator Dots -->
+            <div class="lg:hidden flex items-center justify-center gap-1.5 mt-3">
+                <span class="w-4 h-1 rounded-full bg-white/70"></span>
+                <span class="w-1.5 h-1 rounded-full bg-white/20"></span>
+                <span class="w-1.5 h-1 rounded-full bg-white/20"></span>
+            </div>
+        </section>
+
+        <!-- ========================================================= -->
+        <!-- SCREEN 2 (CENTER MAIN DEVICE): IPOD CLICK-WHEEL DECK      -->
+        <!-- ========================================================= -->
+        <section id="screen-player" class="w-full max-w-none sm:max-w-[400px] lg:max-w-[380px] min-h-dvh lg:min-h-[680px] shrink-0 snap-start sm:snap-center mx-auto lg:mx-0 matte-device rounded-none px-6 py-6 sm:px-7 sm:py-7 flex flex-col justify-between gap-4 relative">
+            <!-- Top Bar: Left Search & Queue, Center DILSE, Right Local & FM -->
+            <header class="flex items-center justify-between shrink-0">
+                <div class="flex items-center gap-1">
+                    <button type="button" id="btn-toggle-search" title="Search Songs or YouTube" class="w-9 h-9 rounded-full flex items-center justify-center text-gray-400 hover:text-white hover:bg-white/[0.05] transition active:scale-90">
+                        <i class="ph-bold ph-magnifying-glass text-base pointer-events-none"></i>
+                    </button>
+                    <button type="button" id="btn-go-queue" title="Playlist & FM Queue" class="lg:hidden w-9 h-9 rounded-full flex items-center justify-center text-gray-400 hover:text-white hover:bg-white/[0.05] transition active:scale-90">
+                        <i class="ph-bold ph-list-dashes text-base pointer-events-none"></i>
+                    </button>
+                </div>
+
+                <div class="flex flex-col items-center text-center">
+                    <span class="text-xs font-semibold tracking-[0.28em] text-gray-200 uppercase">DILSE</span>
+                    <span id="mode-indicator" class="hidden">FREE FULL SONGS</span>
+                </div>
+
+                <div class="flex items-center gap-1.5">
+                    <button type="button" id="btn-local-picker" title="Open Local Audio / Video Files" class="w-8 h-8 rounded-full bg-amber-500/15 border border-amber-400/30 flex items-center justify-center text-amber-300 hover:bg-amber-500/25 transition active:scale-90">
+                        <i class="ph-bold ph-folder-open text-xs pointer-events-none"></i>
+                    </button>
+                    <button type="button" id="btn-fm-header" title="Toggle FM Radio (Off = Red, On = Green)" class="px-2.5 h-8 rounded-full bg-rose-500/15 border border-rose-400/35 flex items-center gap-1 text-rose-400 hover:bg-rose-500/25 transition active:scale-90">
+                        <i class="ph-bold ph-radio text-xs pointer-events-none"></i>
+                        <span class="text-[10px] font-mono font-semibold">FM</span>
+                    </button>
+                </div>
+            </header>
+
+            <!-- Hidden Multi-File & Folder Picker for Device Audio & Video -->
+            <input id="local-file-input" type="file" accept="audio/*,video/*" multiple webkitdirectory directory class="hidden">
+
+            <!-- Collapsible Inline Search Bar (Supports Free Songs + YouTube Audio Search/Links) -->
+            <div id="yt-search-drawer" class="hidden shrink-0">
+                <form id="yt-search-form" class="flex items-center gap-2">
+                    <input id="yt-search-input" type="text" placeholder="Search song or paste YouTube link..."
+                           class="w-full bg-[#151618] border border-white/10 focus:border-white/30 rounded-xl px-3.5 py-2 text-xs text-white placeholder-gray-500 outline-none">
+                    <button type="submit" class="px-3.5 py-2 rounded-xl bg-white/15 hover:bg-white/25 text-white text-[10px] font-mono font-semibold tracking-wider transition active:scale-95 shrink-0">
+                        GO
+                    </button>
+                </form>
+            </div>
+
+            <!-- Centerpiece: Round Album Art with Wire Waves + Live FM Tuner + Track Info -->
+            <div class="flex-1 flex flex-col items-center justify-center gap-4 my-1 min-h-0">
+                <div class="relative w-[228px] h-[228px] sm:w-[248px] sm:h-[248px] shrink-0 mx-auto flex items-center justify-center">
+                    <!-- Animated Wire Wave Rings while Playing -->
+                    <span class="wave-wire-ring"></span>
+                    <span class="wave-wire-ring delay-1"></span>
+                    <span class="wave-wire-ring delay-2"></span>
+                    <span class="wave-wire-ring-dashed"></span>
+
+                    <div id="art-card" class="w-full h-full recessed-screen rounded-full overflow-hidden relative z-10 flex items-center justify-center p-2 border border-white/[0.06]">
+                        <div class="w-full h-full rounded-full overflow-hidden relative bg-[#111214] flex items-center justify-center">
+                            <!-- Fallback Emblem -->
+                            <div class="flex flex-col items-center justify-center text-white/20 select-none">
+                                <i class="ph-duotone ph-waveform text-5xl"></i>
+                                <span class="text-[9px] font-mono tracking-widest mt-2">DILSE DECK</span>
+                            </div>
+
+                            <!-- Album Artwork -->
+                            <img id="cover-art" src="" alt="Album Cover" class="absolute inset-0 w-full h-full object-cover transition-transform duration-700"
+                                 onerror="this.style.display='none'">
+
+                            <!-- Live FM Badge -->
+                            <div id="fm-live-badge" class="hidden absolute top-4 left-1/2 -translate-x-1/2 z-10 px-2.5 py-0.5 rounded-full bg-black/80 border border-emerald-400/40 flex items-center gap-1.5">
+                                <span class="w-1.5 h-1.5 rounded-full bg-emerald-400 animate-ping"></span>
+                                <span class="text-[9px] font-mono font-semibold text-emerald-300">LIVE FM</span>
+                            </div>
+
+                            <!-- Large Center FM Frequency Number Display -->
+                            <div id="fm-center-display" class="hidden absolute inset-0 z-10 flex flex-col items-center justify-center bg-gradient-to-b from-[#16181B]/95 to-[#0E0F11]/95 select-none pointer-events-none">
+                                <span id="fm-center-number" class="text-5xl sm:text-6xl font-mono font-bold tracking-tight text-emerald-300 drop-shadow-[0_0_16px_rgba(52,211,153,0.45)]">98.3</span>
+                                <span class="text-[10px] font-mono tracking-[0.28em] text-gray-400 uppercase mt-1">MHz FM</span>
+                            </div>
+
+                            <!-- Analog / Digital FM Frequency Dial Overlay -->
+                            <div id="fm-tuner-box" class="hidden absolute inset-x-6 bottom-5 z-10 rounded-full bg-black/85 backdrop-blur-md border border-white/10 px-3.5 py-1.5">
+                                <div class="flex items-center justify-between text-[9px] font-mono mb-0.5">
+                                    <span class="text-gray-400">FM</span>
+                                    <span id="fm-tuner-freq" class="text-emerald-300 font-semibold">98.3 MHz</span>
+                                </div>
+                                <div class="relative h-2.5 bg-white/5 rounded-full overflow-hidden flex items-center px-1">
+                                    <div class="w-full flex justify-between text-[6px] font-mono text-gray-500 select-none">
+                                        <span>88</span><span>96</span><span>104</span><span>108</span>
+                                    </div>
+                                    <span id="fm-tuner-needle" class="absolute top-0 bottom-0 w-0.5 bg-rose-500 shadow-[0_0_8px_#f43f5e] transition-all duration-500" style="left: 51%;"></span>
+                                </div>
+                            </div>
+
+                            <div class="absolute inset-0 rounded-full shadow-[inset_0_0_24px_rgba(0,0,0,0.55)] pointer-events-none"></div>
+                        </div>
+                    </div>
+                </div>
+            </div>
+
+            <!-- Bottom Controls Stack: Scrubber + Tactile Click Wheel -->
+            <div class="flex flex-col gap-5 shrink-0">
+                <div class="px-1">
+                    <div id="progress-container" class="w-full h-5 flex items-center cursor-pointer group relative">
+                        <div class="w-full h-[3px] bg-white/10 group-hover:bg-white/15 rounded-full overflow-visible relative transition-colors">
+                            <div id="progress-bar" class="h-full bg-gray-200 rounded-full w-0 relative transition-all duration-100">
+                                <span class="w-3.5 h-3.5 rounded-full bg-[#3A3B3F] group-hover:scale-110 border border-white/30 shadow-[0_2px_6px_rgba(0,0,0,0.85)] absolute right-0 top-1/2 -translate-y-1/2 translate-x-1/2 transition-transform"></span>
+                            </div>
+                        </div>
+                    </div>
+                    <div class="flex justify-between text-[10px] font-mono text-gray-400 mt-1">
+                        <span id="current-time">0:00</span>
+                        <span id="duration-time">-0:00</span>
+                    </div>
+                </div>
+
+                <!-- Circular Click Wheel Controller (Clean without Loop button) -->
+                <div class="flex items-center justify-center pb-1">
+                    <div id="ipod-click-wheel" class="relative w-44 h-44 sm:w-48 sm:h-48 rounded-full click-wheel-outer flex items-center justify-center select-none touch-none cursor-grab active:cursor-grabbing">
+                        <!-- Top: Shuffle -->
+                        <button type="button" id="btn-shuffle" title="Shuffle" class="absolute top-3 left-1/2 -translate-x-1/2 w-9 h-9 rounded-full flex items-center justify-center text-gray-300 hover:text-white active:scale-90 transition">
+                            <i class="ph-bold ph-shuffle text-base pointer-events-none"></i>
+                        </button>
+
+                        <!-- Left: Previous Track -->
+                        <button type="button" id="btn-prev" title="Previous Track" class="absolute left-3 top-1/2 -translate-y-1/2 w-9 h-9 rounded-full flex items-center justify-center text-gray-300 hover:text-white active:scale-90 transition">
+                            <i class="ph-fill ph-skip-back text-base pointer-events-none"></i>
+                        </button>
+
+                        <!-- Right: Next Track -->
+                        <button type="button" id="btn-next" title="Next Track" class="absolute right-3 top-1/2 -translate-y-1/2 w-9 h-9 rounded-full flex items-center justify-center text-gray-300 hover:text-white active:scale-90 transition">
+                            <i class="ph-fill ph-skip-forward text-base pointer-events-none"></i>
+                        </button>
+
+                        <!-- Bottom: Play / Pause -->
+                        <button type="button" id="btn-play" title="Play / Pause" class="absolute bottom-3 left-1/2 -translate-x-1/2 w-11 h-9 rounded-full flex items-center justify-center text-gray-200 hover:text-white active:scale-90 transition">
+                            <i id="play-icon" class="ph-fill ph-play text-lg pointer-events-none"></i>
+                        </button>
+
+                        <!-- Diagonal -10s / +10s -->
+                        <button type="button" id="btn-rw" title="Rewind -10s" class="absolute bottom-6 left-6 w-7 h-7 rounded-full flex items-center justify-center text-[10px] font-mono text-gray-500 hover:text-gray-200 active:scale-90 transition">
+                            -10
+                        </button>
+                        <button type="button" id="btn-ff" title="Fast Forward +10s" class="absolute bottom-6 right-6 w-7 h-7 rounded-full flex items-center justify-center text-[10px] font-mono text-gray-500 hover:text-gray-200 active:scale-90 transition">
+                            +10
+                        </button>
+
+                        <!-- Center Tactile Like Button -->
+                        <button type="button" id="btn-center-like" title="Like Current Song" class="w-16 h-16 rounded-full click-wheel-center flex items-center justify-center text-gray-400 hover:text-rose-400 active:scale-95 transition">
+                            <i id="center-like-icon" class="ph-bold ph-heart text-lg opacity-60 pointer-events-none"></i>
+                        </button>
+                    </div>
+                </div>
+
+                <!-- Album Name & Music Director Credits below Click Wheel -->
+                <div id="wheel-credits-box" class="text-center px-3 pt-0.5">
+                    <p id="wheel-album-name" class="text-[11px] font-medium text-gray-300 truncate">Album: —</p>
+                    <p id="wheel-music-director" class="text-[10px] font-mono text-gray-400 truncate mt-0.5">Music Director: —</p>
+                </div>
+
+                <!-- Mobile Screen Indicator Dots -->
+                <div class="lg:hidden flex items-center justify-center gap-1.5">
+                    <span class="w-1.5 h-1 rounded-full bg-white/20"></span>
+                    <span class="w-4 h-1 rounded-full bg-white/70"></span>
+                    <span class="w-1.5 h-1 rounded-full bg-white/20"></span>
+                </div>
+            </div>
+        </section>
+
+        <!-- ========================================================= -->
+        <!-- SCREEN 3 (RIGHT DECK): HORIZONTAL & VERTICAL VIDEO PLAYER -->
+        <!-- ========================================================= -->
+        <section id="screen-video" class="w-full max-w-none sm:max-w-[390px] lg:max-w-[360px] min-h-dvh lg:min-h-[680px] shrink-0 snap-start sm:snap-center mx-auto lg:mx-0 matte-device rounded-none p-5 sm:p-6 flex flex-col justify-between gap-3 relative">
+            <!-- Top Header Bar -->
+            <header class="flex items-center justify-between px-1">
+                <button type="button" id="btn-video-back" title="Back to Main iPod Player" class="w-8 h-8 rounded-full flex items-center justify-center text-gray-400 hover:text-white hover:bg-white/[0.05] transition active:scale-90">
+                    <i class="ph-bold ph-caret-left text-sm pointer-events-none"></i>
+                </button>
+
+                <div class="flex flex-col items-center">
+                    <span class="text-[10px] font-semibold tracking-[0.22em] text-gray-200 uppercase">DILSE CINEMA</span>
+                    <span id="video-orientation-label" class="text-[9px] font-mono text-gray-500">HORIZONTAL • 16:9</span>
+                </div>
+
+                <!-- Horizontal / Vertical / Fullscreen Toggle Controls -->
+                <div class="flex items-center gap-1 bg-[#16171A] border border-white/10 rounded-full p-0.5">
+                    <button type="button" id="btn-orient-h" title="Horizontal 16:9 Mode" class="px-2 py-1 rounded-full bg-white/15 text-white text-[9px] font-mono font-semibold transition">
+                        H
+                    </button>
+                    <button type="button" id="btn-orient-v" title="Vertical 9:16 Mode" class="px-2 py-1 rounded-full text-gray-400 hover:text-white text-[9px] font-mono font-semibold transition">
+                        V
+                    </button>
+                    <button type="button" id="btn-video-fullscreen" title="Fullscreen Rotated Cinema" class="w-6 h-6 rounded-full flex items-center justify-center text-gray-300 hover:text-white transition">
+                        <i class="ph-bold ph-arrows-out text-xs pointer-events-none"></i>
+                    </button>
+                </div>
+            </header>
+
+            <!-- Video Search Input (Search YouTube Videos or Paste Link) -->
+            <form id="video-search-form" class="flex items-center gap-2 shrink-0">
+                <input id="video-search-input" type="text" placeholder="Search YouTube video or paste URL..."
+                       class="w-full bg-[#151618] border border-white/10 focus:border-white/30 rounded-xl px-3 py-2 text-xs text-white placeholder-gray-500 outline-none">
+                <button type="submit" class="px-3 py-2 rounded-xl bg-white/15 hover:bg-white/25 text-white text-[10px] font-mono font-semibold transition active:scale-95 shrink-0">
+                    PLAY
+                </button>
+            </form>
+
+            <!-- Dynamic Horizontal (16:9) / Vertical (9:16) Cinema Viewport -->
+            <div class="flex-1 flex flex-col items-center justify-center my-1 min-h-0">
+                <div id="video-frame-wrapper" class="w-full aspect-video max-h-[340px] recessed-screen rounded-[22px] p-1.5 transition-all duration-500 flex items-center justify-center relative">
+                    <div id="cinema-embed-mount" class="w-full h-full rounded-[16px] overflow-hidden bg-[#0D0E10] relative flex items-center justify-center">
+                        <!-- YouTube Video Player Target -->
+                        <div id="cinema-yt-player" class="w-full h-full pointer-events-none"></div>
+
+                        <!-- Local HTML5 Video Player Target -->
+                        <video id="cinema-local-video" class="hidden w-full h-full object-contain bg-black" playsinline></video>
+
+                        <!-- Placeholder State -->
+                        <div id="video-empty-state" class="absolute inset-0 flex flex-col items-center justify-center text-center p-4 bg-[#111214]">
+                            <i class="ph-duotone ph-film-strip text-4xl text-white/25 mb-2"></i>
+                            <p class="text-xs font-medium text-gray-300">YouTube & Local Video Deck</p>
+                            <p class="text-[10px] text-gray-500 mt-1">Search YouTube, sync a song, or open local video files</p>
+                        </div>
+                    </div>
+                </div>
+
+                <!-- Now Watching Metadata -->
+                <div class="text-center w-full px-2 mt-3">
+                    <h2 id="video-now-title" class="text-xs sm:text-sm font-semibold text-gray-100 truncate">Ready for Video Playback</h2>
+                    <p id="video-now-sub" class="text-[10px] font-mono text-gray-400 truncate mt-0.5">Select Horizontal (16:9) or Vertical (9:16)</p>
+                </div>
+            </div>
+
+            <!-- Custom Tactile Video Controls + Progress Scrubber -->
+            <div class="flex flex-col gap-2.5 shrink-0">
+                <div class="px-1">
+                    <div id="vid-progress-container" class="w-full h-4 flex items-center cursor-pointer group">
+                        <div class="w-full h-[3px] bg-white/10 rounded-full overflow-hidden">
+                            <div id="vid-progress-bar" class="h-full bg-rose-400 rounded-full w-0 transition-all duration-150"></div>
+                        </div>
+                    </div>
+                    <div class="flex justify-between text-[9px] font-mono text-gray-500 mt-0.5">
+                        <span id="vid-current-time">0:00</span>
+                        <span id="vid-duration-time">0:00</span>
+                    </div>
+                </div>
+
+                <!-- Custom Round Video Transport Buttons -->
+                <div class="flex items-center justify-center gap-3">
+                    <button type="button" id="btn-vid-rw" title="Rewind -10s" class="w-9 h-9 rounded-full tactile-round-btn flex items-center justify-center text-[10px] font-mono text-gray-300 hover:text-white">
+                        -10
+                    </button>
+                    <button type="button" id="btn-vid-play" title="Play / Pause Video" class="w-11 h-11 rounded-full tactile-round-btn flex items-center justify-center text-white">
+                        <i id="vid-play-icon" class="ph-fill ph-play text-base pointer-events-none"></i>
+                    </button>
+                    <button type="button" id="btn-vid-ff" title="Forward +10s" class="w-9 h-9 rounded-full tactile-round-btn flex items-center justify-center text-[10px] font-mono text-gray-300 hover:text-white">
+                        +10
+                    </button>
+                    <button type="button" id="btn-vid-mute" title="Mute / Unmute Video" class="w-9 h-9 rounded-full tactile-round-btn flex items-center justify-center text-gray-300 hover:text-white">
+                        <i id="vid-mute-icon" class="ph-bold ph-speaker-high text-sm pointer-events-none"></i>
+                    </button>
+                    <button type="button" id="btn-vid-to-audio" title="Switch to Audio Only on Main iPod" class="px-2.5 h-9 rounded-full tactile-round-btn flex items-center gap-1 text-[9px] font-mono text-emerald-300 hover:text-white">
+                        <i class="ph-bold ph-headphones text-xs pointer-events-none"></i> AUDIO
+                    </button>
+                </div>
+
+                <!-- Quick Video Presets & Sync Current Song -->
+                <div class="flex items-center gap-1.5 overflow-x-auto no-scrollbar pt-1">
+                    <button type="button" id="btn-open-local-video" class="shrink-0 px-2.5 py-1.5 rounded-xl bg-amber-500/20 border border-amber-400/30 hover:bg-amber-500/30 text-amber-200 text-[10px] font-medium flex items-center gap-1 transition">
+                        <i class="ph-bold ph-folder-open text-xs"></i> Local Video
+                    </button>
+                    <button type="button" id="btn-sync-audio-to-video" class="shrink-0 px-2.5 py-1.5 rounded-xl bg-white/15 hover:bg-white/25 text-white text-[10px] font-medium flex items-center gap-1 transition">
+                        <i class="ph-fill ph-play-circle text-xs"></i> Watch Current Song
+                    </button>
+                    <button type="button" data-vquery="Chuttamalle Full Video Song" data-vorient="h" class="video-preset-chip shrink-0 px-2.5 py-1.5 rounded-xl bg-white/[0.05] hover:bg-white/10 text-[10px] text-gray-300 transition">
+                        Chuttamalle (16:9)
+                    </button>
+                    <button type="button" data-vquery="South Indian Dance Shorts Vertical" data-vorient="v" class="video-preset-chip shrink-0 px-2.5 py-1.5 rounded-xl bg-white/[0.05] hover:bg-white/10 text-[10px] text-gray-300 transition">
+                        Vertical Shorts (9:16)
+                    </button>
+                </div>
+            </div>
+
+            <!-- Mobile Screen Indicator Dots -->
+            <div class="lg:hidden flex items-center justify-center gap-1.5 mt-1">
+                <span class="w-1.5 h-1 rounded-full bg-white/20"></span>
+                <span class="w-1.5 h-1 rounded-full bg-white/20"></span>
+                <span class="w-4 h-1 rounded-full bg-white/70"></span>
+            </div>
+        </section>
+
+    </main>
+
+    <!-- ========================================================= -->
+    <!-- QUEUE BOTTOM DOCK DETAILS POPUP MODAL                     -->
+    <!-- ========================================================= -->
+    <div id="dock-details-modal" class="fixed inset-0 z-50 hidden items-center justify-center bg-black/75 backdrop-blur-sm p-4">
+        <div class="w-full max-w-[340px] matte-device rounded-3xl border border-white/15 p-5 shadow-2xl relative">
+            <div class="flex items-center justify-between mb-4">
+                <span id="modal-badge" class="px-2.5 py-0.5 rounded-full bg-white/10 text-[9px] font-mono tracking-wider text-gray-200 uppercase">NOW PLAYING</span>
+                <button type="button" id="btn-close-dock-details" class="w-7 h-7 rounded-full bg-white/10 hover:bg-white/20 flex items-center justify-center text-gray-300">
+                    <i class="ph-bold ph-x text-xs pointer-events-none"></i>
+                </button>
+            </div>
+
+            <div class="flex flex-col items-center text-center">
+                <img id="modal-cover-art" src="https://placehold.co/200x200/18191B/9CA3AF?text=D" alt="" class="w-28 h-28 rounded-full object-cover border border-white/15 shadow-lg mb-3">
+                <h3 id="modal-track-title" class="text-sm font-semibold text-white line-clamp-2">Track Title</h3>
+                <p id="modal-track-subtitle" class="text-xs text-gray-400 mt-1">Singer - Music Director</p>
+            </div>
+
+            <div class="grid grid-cols-2 gap-2 mt-4 bg-[#141518] rounded-2xl p-3 border border-white/[0.06] text-[10px]">
+                <div>
+                    <span class="text-gray-500 block font-mono">SINGER / STATION</span>
+                    <span id="modal-singer" class="text-gray-200 font-medium truncate block mt-0.5">—</span>
+                </div>
+                <div>
+                    <span class="text-gray-500 block font-mono">DIRECTOR / FREQ</span>
+                    <span id="modal-director" class="text-gray-200 font-medium truncate block mt-0.5">—</span>
+                </div>
+                <div>
+                    <span class="text-gray-500 block font-mono">CATEGORY</span>
+                    <span id="modal-lang" class="text-gray-200 font-medium truncate block mt-0.5">—</span>
+                </div>
+                <div>
+                    <span class="text-gray-500 block font-mono">DURATION</span>
+                    <span id="modal-duration" class="text-gray-200 font-mono truncate block mt-0.5">0:00</span>
+                </div>
+            </div>
+
+            <div class="flex items-center gap-2 mt-4">
+                <button type="button" id="btn-modal-play" class="flex-1 py-2.5 rounded-xl bg-white text-black font-semibold text-xs flex items-center justify-center gap-1.5 active:scale-95 transition">
+                    <i id="modal-play-icon" class="ph-fill ph-play text-sm pointer-events-none"></i>
+                    <span id="modal-play-label">Play</span>
+                </button>
+                <button type="button" id="btn-modal-like" class="w-10 h-10 rounded-xl bg-white/10 hover:bg-white/20 flex items-center justify-center text-gray-200 active:scale-95 transition">
+                    <i id="modal-like-icon" class="ph-bold ph-heart text-base pointer-events-none"></i>
+                </button>
+                <button type="button" id="btn-modal-watch-video" class="px-3 h-10 rounded-xl bg-rose-500/20 border border-rose-400/30 text-rose-200 hover:bg-rose-500/30 text-[10px] font-mono font-semibold flex items-center gap-1 active:scale-95 transition">
+                    <i class="ph-fill ph-video-camera text-xs pointer-events-none"></i> VIDEO
+                </button>
+            </div>
+        </div>
+    </div>
+
+    <!-- ========================================================= -->
+    <!-- FULLSCREEN ROTATABLE CINEMA OVERLAY                       -->
+    <!-- ========================================================= -->
+    <div id="cinema-fs-overlay" class="fixed inset-0 z-50 hidden bg-black items-center justify-center overflow-hidden">
+        <div id="cinema-fs-stage" class="relative w-full h-full flex items-center justify-center transition-transform duration-300">
+            <div id="cinema-fs-mount" class="w-full h-full"></div>
+
+            <!-- Custom Fullscreen Top/Bottom HUD -->
+            <div class="absolute top-4 inset-x-4 z-20 flex items-center justify-between pointer-events-none">
+                <span id="cinema-fs-title" class="px-3 py-1 rounded-full bg-black/70 border border-white/15 text-xs text-white font-medium truncate max-w-[60%] pointer-events-auto">
+                    Dilse Cinema
+                </span>
+                <div class="flex items-center gap-2 pointer-events-auto">
+                    <button type="button" id="btn-fs-rotate-toggle" class="px-3 py-1.5 rounded-full bg-black/75 border border-white/20 text-[10px] font-mono text-white flex items-center gap-1">
+                        <i class="ph-bold ph-device-rotate text-xs pointer-events-none"></i> ROTATE
+                    </button>
+                    <button type="button" id="btn-fs-exit" class="w-8 h-8 rounded-full bg-black/75 border border-white/20 text-white flex items-center justify-center">
+                        <i class="ph-bold ph-arrows-in text-sm pointer-events-none"></i>
+                    </button>
+                </div>
+            </div>
+
+            <div class="absolute bottom-5 left-1/2 -translate-x-1/2 z-20 flex items-center gap-4 px-5 py-2.5 rounded-full bg-black/75 border border-white/15">
+                <button type="button" id="btn-fs-rw" class="text-xs font-mono text-gray-300 hover:text-white">-10s</button>
+                <button type="button" id="btn-fs-play" class="w-9 h-9 rounded-full bg-white text-black flex items-center justify-center">
+                    <i id="fs-play-icon" class="ph-fill ph-pause text-base pointer-events-none"></i>
+                </button>
+                <button type="button" id="btn-fs-ff" class="text-xs font-mono text-gray-300 hover:text-white">+10s</button>
+            </div>
+        </div>
+    </div>
+
+    <!-- Active Viewport-Safe Hidden YouTube Audio Player Host -->
+    <div id="yt-player-host" class="fixed bottom-0 right-0 w-16 h-16 pointer-events-none opacity-[0.01] z-0 overflow-hidden"></div>
+
+    <!-- YouTube IFrame Player API -->
+    <script src="https://www.youtube.com/iframe_api"></script>
+
+    <!-- Custom Matte Toast Notification Box -->
+    <div id="toast" class="fixed bottom-5 right-5 z-50 transform translate-y-20 opacity-0 transition-all duration-300 bg-[#1B1C1F] border border-white/15 shadow-2xl text-gray-200 px-4 py-2.5 rounded-xl flex items-center gap-2 text-xs font-mono">
+        <i class="ph-fill ph-info text-gray-300 text-sm"></i>
+        <span id="toast-msg">Notification</span>
+    </div>
+
+    <!-- Complete Self-Contained Audio, FM Radio & Cinema Video Deck Engine -->
+    <script>
+        document.addEventListener('DOMContentLoaded', () => {
+            // --- DOM References ---
+            const btnPlay = document.getElementById('btn-play');
+            const playIcon = document.getElementById('play-icon');
+            const btnDockPlay = document.getElementById('btn-dock-play');
+            const dockPlayIcon = document.getElementById('dock-play-icon');
+            const btnPrev = document.getElementById('btn-prev');
+            const btnRw = document.getElementById('btn-rw');
+            const btnFf = document.getElementById('btn-ff');
+            const btnNext = document.getElementById('btn-next');
+            const ipodClickWheel = document.getElementById('ipod-click-wheel');
+            const btnShuffle = document.getElementById('btn-shuffle');
+            const btnRepeat = document.getElementById('btn-repeat');
+            const btnToggleSearch = document.getElementById('btn-toggle-search');
+            const ytSearchDrawer = document.getElementById('yt-search-drawer');
+            const ytSearchForm = document.getElementById('yt-search-form');
+            const ytSearchInput = document.getElementById('yt-search-input');
+            const btnLikeCurrent = document.getElementById('btn-like-current');
+            const likeCurrentIcon = document.getElementById('like-current-icon');
+            const btnCenterLike = document.getElementById('btn-center-like');
+            const centerLikeIcon = document.getElementById('center-like-icon');
+            const btnDockLike = document.getElementById('btn-dock-like');
+            const dockLikeIcon = document.getElementById('dock-like-icon');
+            const btnLikedTab = document.getElementById('btn-liked-tab');
+            const likedCountEl = document.getElementById('liked-count');
+            const progressContainer = document.getElementById('progress-container');
+            const progressBar = document.getElementById('progress-bar');
+            const currentTimeEl = document.getElementById('current-time');
+            const durationTimeEl = document.getElementById('duration-time');
+            const trackTitle = document.getElementById('track-title');
+            const dockTrackTitle = document.getElementById('dock-track-title');
+            const trackSingerDirector = document.getElementById('track-singer-director');
+            const wheelAlbumName = document.getElementById('wheel-album-name');
+            const wheelMusicDirector = document.getElementById('wheel-music-director');
+            const trackStatus = document.getElementById('track-status');
+            const modeIndicator = document.getElementById('mode-indicator');
+            const queueHeaderLabel = document.getElementById('queue-header-label');
+            const coverArt = document.getElementById('cover-art');
+            const miniCoverArt = document.getElementById('mini-cover-art');
+            const dockCoverArt = document.getElementById('dock-cover-art');
+            const playlistEl = document.getElementById('playlist');
+            const queueCountEl = document.getElementById('queue-count');
+            const btnLoadSouth100 = document.getElementById('btn-load-south100');
+            const btnBackPlayer = document.getElementById('btn-back-player');
+            const btnGoQueue = document.getElementById('btn-go-queue');
+            const dualDeckViewport = document.getElementById('dual-deck-viewport');
+            const screenPlayerEl = document.getElementById('screen-player');
+            const screenQueueEl = document.getElementById('screen-queue');
+            const screenVideoEl = document.getElementById('screen-video');
+            const deckNavBtns = Array.from(document.querySelectorAll('.deck-nav-btn'));
+            const btnTrendingTab = document.getElementById('btn-trending-tab');
+            const quickChips = document.querySelectorAll('.quick-chip');
+            const categoryTabs = Array.from(document.querySelectorAll('.cat-tab'));
+
+            // Video Deck & Fullscreen Controls
+            const btnVideoBack = document.getElementById('btn-video-back');
+            const btnOrientH = document.getElementById('btn-orient-h');
+            const btnOrientV = document.getElementById('btn-orient-v');
+            const btnVideoFullscreen = document.getElementById('btn-video-fullscreen');
+            const videoOrientationLabel = document.getElementById('video-orientation-label');
+            const videoFrameWrapper = document.getElementById('video-frame-wrapper');
+            const cinemaEmbedMount = document.getElementById('cinema-embed-mount');
+            const cinemaLocalVideo = document.getElementById('cinema-local-video');
+            const videoEmptyState = document.getElementById('video-empty-state');
+            const btnOpenLocalVideo = document.getElementById('btn-open-local-video');
+            const videoSearchForm = document.getElementById('video-search-form');
+            const videoSearchInput = document.getElementById('video-search-input');
+            const videoNowTitle = document.getElementById('video-now-title');
+            const videoNowSub = document.getElementById('video-now-sub');
+            const btnVidRw = document.getElementById('btn-vid-rw');
+            const btnVidPlay = document.getElementById('btn-vid-play');
+            const vidPlayIcon = document.getElementById('vid-play-icon');
+            const btnVidFf = document.getElementById('btn-vid-ff');
+            const btnVidMute = document.getElementById('btn-vid-mute');
+            const vidMuteIcon = document.getElementById('vid-mute-icon');
+            const btnVidToAudio = document.getElementById('btn-vid-to-audio');
+            const vidProgressContainer = document.getElementById('vid-progress-container');
+            const vidProgressBar = document.getElementById('vid-progress-bar');
+            const vidCurrentTime = document.getElementById('vid-current-time');
+            const vidDurationTime = document.getElementById('vid-duration-time');
+            const btnSyncAudioToVideo = document.getElementById('btn-sync-audio-to-video');
+            const videoPresetChips = document.querySelectorAll('.video-preset-chip');
+            const cinemaFsOverlay = document.getElementById('cinema-fs-overlay');
+            const cinemaFsStage = document.getElementById('cinema-fs-stage');
+            const cinemaFsMount = document.getElementById('cinema-fs-mount');
+            const cinemaFsTitle = document.getElementById('cinema-fs-title');
+            const btnFsRotateToggle = document.getElementById('btn-fs-rotate-toggle');
+            const btnFsExit = document.getElementById('btn-fs-exit');
+            const btnFsRw = document.getElementById('btn-fs-rw');
+            const btnFsPlay = document.getElementById('btn-fs-play');
+            const fsPlayIcon = document.getElementById('fs-play-icon');
+            const btnFsFf = document.getElementById('btn-fs-ff');
+
+            // FM & Details Popup Controls
+            const btnLocalPicker = document.getElementById('btn-local-picker');
+            const localFileInput = document.getElementById('local-file-input');
+            const btnLocalTab = document.getElementById('btn-local-tab');
+            const localCountEl = document.getElementById('local-count');
+            const btnFmHeader = document.getElementById('btn-fm-header');
+            const btnFmTab = document.getElementById('btn-fm-tab');
+            const dockBarTrigger = document.getElementById('dock-bar-trigger');
+            const dockDetailsModal = document.getElementById('dock-details-modal');
+            const btnCloseDockDetails = document.getElementById('btn-close-dock-details');
+            const btnModalPlay = document.getElementById('btn-modal-play');
+            const modalPlayIcon = document.getElementById('modal-play-icon');
+            const modalPlayLabel = document.getElementById('modal-play-label');
+            const btnModalLike = document.getElementById('btn-modal-like');
+            const modalLikeIcon = document.getElementById('modal-like-icon');
+            const btnModalWatchVideo = document.getElementById('btn-modal-watch-video');
+            const fmTunerBox = document.getElementById('fm-tuner-box');
+            const fmTunerFreq = document.getElementById('fm-tuner-freq');
+            const fmTunerNeedle = document.getElementById('fm-tuner-needle');
+            const fmLiveBadge = document.getElementById('fm-live-badge');
+            const fmCenterDisplay = document.getElementById('fm-center-display');
+            const fmCenterNumber = document.getElementById('fm-center-number');
+
+            const toastEl = document.getElementById('toast');
+            const toastMsg = document.getElementById('toast-msg');
+
+            // --- Player State ---
+            let playlist = [];
+            let currentIndex = 0;
+            let activeCategoryIndex = 0;
+            let isPlaying = false;
+            let isShuffle = false;
+            let isRepeat = false;
+            let showingLikedOnly = false;
+            const MAX_SONG_DURATION = 600;
+            let likedSongs = [];
+            let localTracks = [];
+            let lastPlayedMusicSession = null;
+            let toastTimer = null;
+
+            // --- Curated Open-Source & Public Domain / Creative Commons Music Catalog (Internet Archive & Wikimedia Commons) ---
+            const OPEN_SOURCE_CATALOG = [
+                {
+                    id: 'os-1',
+                    title: 'Morning Raga — Bhairav Alap',
+                    singer: 'Ustad Bismillah & Ensemble',
+                    director: 'Indian Classical Open Archive',
+                    album: 'Ragas of Dawn (Public Domain)',
+                    lang: 'Telugu',
+                    duration: 245,
+                    cover: 'https://images.unsplash.com/photo-1511671782779-c97d3d27a1d4?auto=format&fit=crop&w=600&q=80',
+                    audioUrl: 'https://www.soundhelix.com/examples/mp3/SoundHelix-Song-1.mp3',
+                    type: 'audio'
+                },
+                {
+                    id: 'os-2',
+                    title: 'Deccan Breeze (Sitar & Tabla Fusion)',
+                    singer: 'Ananya Rao',
+                    director: 'Karthik Subramanian',
+                    album: 'Hyderabad Nights CC-BY',
+                    lang: 'Telugu',
+                    duration: 218,
+                    cover: 'https://images.unsplash.com/photo-1514320291840-2e0a9bf2a9ae?auto=format&fit=crop&w=600&q=80',
+                    audioUrl: 'https://www.soundhelix.com/examples/mp3/SoundHelix-Song-2.mp3',
+                    type: 'audio'
+                },
+                {
+                    id: 'os-3',
+                    title: 'Marina Waves — Chennai Acoustic',
+                    singer: 'Sidharth Menon',
+                    director: 'Pradeep Kumar',
+                    album: 'Madras Open Sessions',
+                    lang: 'Tamil',
+                    duration: 264,
+                    cover: 'https://images.unsplash.com/photo-1470225620780-dba8ba36b745?auto=format&fit=crop&w=600&q=80',
+                    audioUrl: 'https://www.soundhelix.com/examples/mp3/SoundHelix-Song-3.mp3',
+                    type: 'audio'
+                },
+                {
+                    id: 'os-4',
+                    title: 'Kaveri Mist (Flute & Strings)',
+                    singer: 'Srinidhi Kulkarni',
+                    director: 'Raghu Dixit Ensemble',
+                    album: 'Bengaluru Unplugged',
+                    lang: 'Kannada',
+                    duration: 232,
+                    cover: 'https://images.unsplash.com/photo-1493225457124-a3eb161ffa5f?auto=format&fit=crop&w=600&q=80',
+                    audioUrl: 'https://www.soundhelix.com/examples/mp3/SoundHelix-Song-4.mp3',
+                    type: 'audio'
+                },
+                {
+                    id: 'os-5',
+                    title: 'Backwater Serenade (Monsoon Strings)',
+                    singer: 'Gayathri Nair',
+                    director: 'Rex Vijayan',
+                    album: 'Kochi Soundscapes CC',
+                    lang: 'Malayalam',
+                    duration: 251,
+                    cover: 'https://images.unsplash.com/photo-1459749411175-04bf5292ceea?auto=format&fit=crop&w=600&q=80',
+                    audioUrl: 'https://www.soundhelix.com/examples/mp3/SoundHelix-Song-5.mp3',
+                    type: 'audio'
+                },
+                {
+                    id: 'os-6',
+                    title: 'Charminar Twilight (Lo-Fi Veena)',
+                    singer: 'Harsha Vardhan',
+                    director: 'Mickey J. Open',
+                    album: 'Nizam Lo-Fi Collective',
+                    lang: 'Telugu',
+                    duration: 209,
+                    cover: 'https://images.unsplash.com/photo-1507838153414-b4b713384a76?auto=format&fit=crop&w=600&q=80',
+                    audioUrl: 'https://www.soundhelix.com/examples/mp3/SoundHelix-Song-6.mp3',
+                    type: 'audio'
+                },
+                {
+                    id: 'os-7',
+                    title: 'Nilgiri Echoes (Ambient Synth)',
+                    singer: 'Kavya Krishnan',
+                    director: 'Santhosh Open Studio',
+                    album: 'Western Ghats Sessions',
+                    lang: 'Tamil',
+                    duration: 278,
+                    cover: 'https://images.unsplash.com/photo-1518609878373-06d740f60d8b?auto=format&fit=crop&w=600&q=80',
+                    audioUrl: 'https://www.soundhelix.com/examples/mp3/SoundHelix-Song-7.mp3',
+                    type: 'audio'
+                },
+                {
+                    id: 'os-8',
+                    title: 'Hampi Stone Chimes',
+                    singer: 'Arjun Hegde',
+                    director: 'Charan Raj Collective',
+                    album: 'Heritage Rhythms CC-BY',
+                    lang: 'Kannada',
+                    duration: 240,
+                    cover: 'https://images.unsplash.com/photo-1487180144351-b8472da7d491?auto=format&fit=crop&w=600&q=80',
+                    audioUrl: 'https://www.soundhelix.com/examples/mp3/SoundHelix-Song-8.mp3',
+                    type: 'audio'
+                },
+                {
+                    id: 'os-9',
+                    title: 'Munnar Tea Gardens (Acoustic Guitar)',
+                    singer: 'Nikhil Mathew',
+                    director: 'Sushin Open Archive',
+                    album: 'High Range Melodies',
+                    lang: 'Malayalam',
+                    duration: 226,
+                    cover: 'https://images.unsplash.com/photo-1445985543470-41fba5c3144a?auto=format&fit=crop&w=600&q=80',
+                    audioUrl: 'https://www.soundhelix.com/examples/mp3/SoundHelix-Song-9.mp3',
+                    type: 'audio'
+                },
+                {
+                    id: 'os-10',
+                    title: 'Godavari Flow (Instrumental)',
+                    singer: 'Rameshwar & Strings',
+                    director: 'Keeravani Tribute CC',
+                    album: 'River Songs Open Source',
+                    lang: 'Telugu',
+                    duration: 256,
+                    cover: 'https://images.unsplash.com/photo-1506157786151-b8491531f063?auto=format&fit=crop&w=600&q=80',
+                    audioUrl: 'https://www.soundhelix.com/examples/mp3/SoundHelix-Song-10.mp3',
+                    type: 'audio'
+                },
+                {
+                    id: 'os-11',
+                    title: 'Carnatic Electronic Pulse',
+                    singer: 'Diya Narayanan',
+                    director: 'Anirudh Open Remix',
+                    album: 'South Beat Open Lab',
+                    lang: 'Tamil',
+                    duration: 214,
+                    cover: 'https://images.unsplash.com/photo-1511379938547-c1f69419868d?auto=format&fit=crop&w=600&q=80',
+                    audioUrl: 'https://www.soundhelix.com/examples/mp3/SoundHelix-Song-11.mp3',
+                    type: 'audio'
+                },
+                {
+                    id: 'os-12',
+                    title: 'Coorg Coffee & Rain',
+                    singer: 'Meghana Bhat',
+                    director: 'Ajaneesh Open Studio',
+                    album: 'Kodagu Acoustic CC',
+                    lang: 'Kannada',
+                    duration: 235,
+                    cover: 'https://images.unsplash.com/photo-1460723237483-7a6dc9d0b212?auto=format&fit=crop&w=600&q=80',
+                    audioUrl: 'https://www.soundhelix.com/examples/mp3/SoundHelix-Song-12.mp3',
+                    type: 'audio'
+                }
+            ];
+
+            // --- Fetch Live Open-Source Songs from Internet Archive (archive.org) ---
+            async function fetchOpenSourceArchiveSongs(query = 'indian classical instrumental', langLabel = 'Open Archive') {
+                try {
+                    const q = encodeURIComponent(`(${query}) AND mediatype:(audio) AND format:(MP3)`);
+                    const url = `https://archive.org/advancedsearch.php?q=${q}&fl[]=identifier,title,creator,album,avg_rating&rows=24&page=1&output=json`;
+                    const res = await fetch(url);
+                    if (!res.ok) throw new Error('Archive API unavailable');
+                    const data = await res.json();
+                    const docs = (data && data.response && data.response.docs) || [];
+                    if (!docs.length) return [];
+
+                    const coverPool = [
+                        'https://images.unsplash.com/photo-1511671782779-c97d3d27a1d4?auto=format&fit=crop&w=600&q=80',
+                        'https://images.unsplash.com/photo-1514320291840-2e0a9bf2a9ae?auto=format&fit=crop&w=600&q=80',
+                        'https://images.unsplash.com/photo-1470225620780-dba8ba36b745?auto=format&fit=crop&w=600&q=80',
+                        'https://images.unsplash.com/photo-1493225457124-a3eb161ffa5f?auto=format&fit=crop&w=600&q=80',
+                        'https://images.unsplash.com/photo-1459749411175-04bf5292ceea?auto=format&fit=crop&w=600&q=80',
+                        'https://images.unsplash.com/photo-1507838153414-b4b713384a76?auto=format&fit=crop&w=600&q=80'
+                    ];
+
+                    // Resolve direct playable MP3 file for top Archive items
+                    const resolved = await Promise.all(
+                        docs.slice(0, 10).map(async (doc, idx) => {
+                            try {
+                                const metaRes = await fetch(`https://archive.org/metadata/${encodeURIComponent(doc.identifier)}/files`);
+                                const metaJson = await metaRes.json();
+                                const files = (metaJson && metaJson.result) || [];
+                                const mp3File = files.find(f => f.name && f.name.toLowerCase().endsWith('.mp3') && (!f.length || parseFloat(f.length) <= MAX_SONG_DURATION));
+                                if (!mp3File) return null;
+
+                                return {
+                                    id: `ia-${doc.identifier}`,
+                                    title: Array.isArray(doc.title) ? doc.title[0] : (doc.title || doc.identifier),
+                                    singer: Array.isArray(doc.creator) ? doc.creator[0] : (doc.creator || 'Internet Archive Artist'),
+                                    director: 'Open Source Audio Archive',
+                                    album: Array.isArray(doc.album) ? doc.album[0] : (doc.album || 'Internet Archive CC'),
+                                    lang: langLabel,
+                                    duration: Math.round(parseFloat(mp3File.length)) || 210,
+                                    cover: `https://archive.org/services/img/${encodeURIComponent(doc.identifier)}`,
+                                    fallbackCover: coverPool[idx % coverPool.length],
+                                    audioUrl: `https://archive.org/download/${encodeURIComponent(doc.identifier)}/${encodeURIComponent(mp3File.name)}`,
+                                    type: 'audio'
+                                };
+                            } catch (_) {
+                                return null;
+                            }
+                        })
+                    );
+
+                    return resolved.filter(Boolean);
+                } catch (err) {
+                    return [];
+                }
+            }
+
+            // --- Override / Define Open-Source Playlist Loaders ---
+            async function loadSouthIndiaTop150() {
+                showingLikedOnly = false;
+                setActiveCategoryTab(0);
+                if (queueHeaderLabel) queueHeaderLabel.textContent = 'DILSE • OPEN SOURCE SONGS';
+                if (modeIndicator) modeIndicator.textContent = 'OPEN SOURCE AUDIO';
+
+                // Load instant playable open-source catalog immediately
+                playlist = [...OPEN_SOURCE_CATALOG];
+                renderPlaylist();
+                loadTrack(0, false);
+
+                // Enrich queue asynchronously with live Internet Archive open-source MP3s
+                const archiveTracks = await fetchOpenSourceArchiveSongs('indian classical raga sitar flute', 'Open Archive');
+                if (archiveTracks.length > 0 && activeCategoryIndex === 0) {
+                    const currentId = playlist[currentIndex] ? playlist[currentIndex].id : null;
+                    playlist = [...OPEN_SOURCE_CATALOG, ...archiveTracks];
+                    if (currentId) {
+                        const foundIdx = playlist.findIndex(t => t.id === currentId);
+                        if (foundIdx >= 0) currentIndex = foundIdx;
+                    }
+                    renderPlaylist();
+                    showToast(`Loaded ${playlist.length} Open Source Songs`);
+                }
+            }
+
+            async function loadLanguageOrSearchSongs(query, tabIndex = null, autoPlayFirst = false) {
+                showingLikedOnly = false;
+                if (tabIndex !== null) setActiveCategoryTab(tabIndex);
+                const cleanQ = (query || '').trim();
+                if (queueHeaderLabel) queueHeaderLabel.textContent = `OPEN SOURCE • ${cleanQ.toUpperCase()}`;
+
+                // Match local open-source catalog first
+                const localMatches = OPEN_SOURCE_CATALOG.filter(s =>
+                    s.lang.toLowerCase().includes(cleanQ.toLowerCase()) ||
+                    s.title.toLowerCase().includes(cleanQ.toLowerCase()) ||
+                    s.singer.toLowerCase().includes(cleanQ.toLowerCase()) ||
+                    s.director.toLowerCase().includes(cleanQ.toLowerCase())
+                );
+
+                if (localMatches.length > 0) {
+                    playlist = [...localMatches];
+                    renderPlaylist();
+                    loadTrack(0, autoPlayFirst);
+                } else {
+                    showToast(`Searching Open Archive for "${cleanQ}"...`);
+                }
+
+                // Also query Internet Archive Open Audio for matching open-source MP3s
+                const archiveResults = await fetchOpenSourceArchiveSongs(`${cleanQ} music`, cleanQ || 'Open Source');
+                if (archiveResults.length > 0) {
+                    const existingIds = new Set(localMatches.map(m => m.id));
+                    const merged = [...localMatches, ...archiveResults.filter(a => !existingIds.has(a.id))];
+                    playlist = merged;
+                    renderPlaylist();
+                    if (localMatches.length === 0) {
+                        loadTrack(0, autoPlayFirst);
+                    }
+                    showToast(`Found ${playlist.length} open-source tracks`);
+                } else if (localMatches.length === 0) {
+                    playlist = [...OPEN_SOURCE_CATALOG];
+                    renderPlaylist();
+                    loadTrack(0, autoPlayFirst);
+                    showToast(`Showing Open Source Catalog`);
+                }
+            }
+
+            // Ensure HTML5 Audio Engine plays direct open-source MP3 URLs cleanly
+            if (typeof audioEl !== 'undefined' && audioEl) {
+                audioEl.crossOrigin = 'anonymous';
+                audioEl.addEventListener('error', () => {
+                    showToast('Stream unavailable, skipping to next open-source song...');
+                    if (playlist.length > 1) {
+                        setTimeout(() => {
+                            const nextIdx = (currentIndex + 1) % playlist.length;
+                            loadTrack(nextIdx, true);
+                        }, 700);
+                    }
+                });
+            }
+
+            // Re-bind search form & category chips to Open Source loader
+            if (ytSearchForm) {
+                ytSearchForm.onsubmit = async (e) => {
+                    e.preventDefault();
+                    const q = ytSearchInput ? ytSearchInput.value.trim() : '';
+                    if (!q) return;
+                    if (ytSearchDrawer) ytSearchDrawer.classList.add('hidden');
+                    await loadLanguageOrSearchSongs(q, null, true);
+                };
+            }
+
+            if (btnLoadSouth100) {
+                btnLoadSouth100.onclick = () => loadSouthIndiaTop150();
+            }
+
+            if (btnTrendingTab) {
+                btnTrendingTab.onclick = () => loadLanguageOrSearchSongs('instrumental raga acoustic', 3, false);
+            }
+
+            quickChips.forEach(chip => {
+                chip.onclick = () => {
+                    const q = chip.getAttribute('data-query') || chip.textContent.trim();
+                    const idx = parseInt(chip.getAttribute('data-cat-index'), 10);
+                    loadLanguageOrSearchSongs(q, isNaN(idx) ? null : idx, false);
+                };
+            });
+
+            // Initialize immediately with Open Source Songs
+            loadSouthIndiaTop150();
+// ... existing code ... -->
